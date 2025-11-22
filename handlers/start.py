@@ -1,11 +1,14 @@
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, ConversationHandler, CommandHandler, MessageHandler, filters
 
 SURNAME = 0
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "Привет! Я бот Додо Пиццы. Пожалуйста, введи свою фамилию, чтобы я мог найти твой график."
+        "🍕 **Привет! Я бот Додо Пиццы!** 🧡\n\n"
+        "Я помогу тебе с графиком, заготовками и другой полезной информацией.\n"
+        "👇 **Пожалуйста, введи свою фамилию, чтобы начать:**",
+        parse_mode='Markdown'
     )
     return SURNAME
 
@@ -15,13 +18,25 @@ async def show_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         ["Разморозка", "Заготовки"],
         ["График", "Система оплаты труда"],
-        ["Обеденный перерыв"]
+        ["Обеденный перерыв", "📊 Рейтинг"]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     
+    # Inline keyboard with URL button
+    inline_keyboard = [[InlineKeyboardButton("🤖 Codo-бот. Актуальная информация", url="https://t.me/dodo_codo_bot")]]
+    inline_markup = InlineKeyboardMarkup(inline_keyboard)
+    
     await update.message.reply_text(
-        f"Что ты хочешь сделать, {surname}?",
-        reply_markup=reply_markup
+        f"👋 **Привет, {surname}!**\nЧем могу помочь сегодня? 🍕",
+        reply_markup=reply_markup,
+        parse_mode='Markdown'
+    )
+    
+    # Send inline button separately
+    await update.message.reply_text(
+        "📲 **Дополнительно:**",
+        reply_markup=inline_markup,
+        parse_mode='Markdown'
     )
 
 async def save_surname(update: Update, context: ContextTypes.DEFAULT_TYPE):

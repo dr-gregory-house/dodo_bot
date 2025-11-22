@@ -23,12 +23,18 @@ if __name__ == '__main__':
     from handlers.defrost import defrost_handler
     from handlers.wages import wages_message_handler
     from handlers.lunch import lunch_message_handler
+    from handlers.ratings import ratings_message_handler, upload_rs_handler, upload_rp_handler
+    from handlers.schedule import schedule_callback_handler
 
     application.add_handler(start_handler)
     application.add_handler(preps_handler)
     application.add_handler(defrost_handler)
     application.add_handler(wages_message_handler)
     application.add_handler(lunch_message_handler)
+    application.add_handler(ratings_message_handler)
+    application.add_handler(upload_rs_handler)
+    application.add_handler(upload_rp_handler)
+    application.add_handler(schedule_callback_handler)
     application.add_handler(menu_message_handler)
 
     print("Bot is running...")
