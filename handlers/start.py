@@ -40,8 +40,53 @@ async def show_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def save_surname(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    surname = update.message.text
+    surname = update.message.text.strip()
+    
+    # List of menu buttons to reject
+    forbidden_words = [
+        "Разморозка", "Заготовки", 
+        "График", "Система оплаты труда", 
+        "Обеденный перерыв", "📊 Рейтинг",
+        "🤖 Codo-бот. Актуальная информация"
+    ]
+    
+    if surname in forbidden_words:
+        await update.message.reply_text(
+            "⚠️ <b>Это кнопка меню, а не фамилия.</b>\n"
+            "Пожалуйста, введите вашу фамилию текстом, чтобы я мог найти вас в графике.",
+            parse_mode='HTML'
+        )
+        return SURNAME
+
     context.user_data['surname'] = surname
+    
+    # Save user_id -> surname mapping
+    try:
+        import json
+        import os
+        
+        user_id = str(update.effective_user.id)
+        users_file = 'data/users.json'
+        
+        # Ensure data directory exists
+        os.makedirs('data', exist_ok=True)
+        
+        users = {}
+        if os.path.exists(users_file):
+            try:
+                with open(users_file, 'r', encoding='utf-8') as f:
+                    users = json.load(f)
+            except:
+                pass
+        
+        users[user_id] = surname
+        
+        with open(users_file, 'w', encoding='utf-8') as f:
+            json.dump(users, f, ensure_ascii=False, indent=2)
+            
+    except Exception as e:
+        print(f"Error saving user mapping: {e}")
+
     await show_menu(update, context)
     return ConversationHandler.END
 

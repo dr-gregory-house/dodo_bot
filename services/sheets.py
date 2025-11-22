@@ -1,7 +1,9 @@
 import csv
-import httpx
 import io
 import logging
+import urllib.request
+from datetime import datetime
+from services.sheet_manager import sheet_manager
 
 logger = logging.getLogger(__name__)
 
@@ -77,167 +79,239 @@ def detect_role_header(row_text: str) -> str | None:
     
     return None
 
-async def get_schedule(surname: str):
-    try:
-        async with httpx.AsyncClient(follow_redirects=True) as client:
-            response = await client.get(SPREADSHEET_URL)
-            response.raise_for_status()
-            
-        # Decode content
-        content = response.content.decode('utf-8')
-        reader = list(csv.reader(io.StringIO(content)))
-        
-        if not reader or len(reader) < 2:
-            return "Ошибка: Не удалось прочитать таблицу."
+from services.sheet_manager import sheet_manager
 
-        # Row 0: Dates (e.g., "", "24.11", "25.11", ...)
-        # Row 1: Days (e.g., "", "пн", "вт", ...)
-        dates = reader[0]
-        days = reader[1]
+import urllib.request
+
+async def get_schedule(surname: str):
+    if not surname:
+        return []
+
+    # Hardcoded redirect for Булатова to view manager schedule
+    if 'булатова' in surname.lower():
+        surname = 'Ахмитенко'
+
+    try:
+        # Get all relevant sheets
+        sheets = await sheet_manager.get_sheets()
+        if not sheets:
+            return []
+            
+        schedules = []
         
-        schedule_lines = []
-        found = False
-        shifts = []
-        current_role = None  # Track the current role section
-        
-        # Search for surname in Column 0 (starting from row 2)
-        for row in reader[2:]:
-            if not row: continue
+        for sheet in sheets:
+            gid = sheet['gid']
+            sheet_name = sheet['name']
             
-            full_name = row[0].strip()
+            url = f"https://docs.google.com/spreadsheets/d/1hbvUroW0SxAbTbsn0nn-9wJyYKz-zLDJQ_PS7b83SzA/export?format=csv&gid={gid}"
             
-            # Stop processing if we reach "Мойка:" section or beyond
-            if 'мойка' in full_name.lower() or full_name.lower() in ['ольга', 'екатерина', 'наталья']:
-                break
-            
-            # Check if this row is a role header
-            detected_role = detect_role_header(full_name)
-            if detected_role:
-                current_role = detected_role
-                continue  # Skip to next row
-            
-            # Check if surname is in the full name (case-insensitive)
-            if surname.lower() in full_name.lower():
-                found = True
-                hourly_rate = get_hourly_rate_by_role(current_role)
-                total_hours = 0
-                total_payment = 0
+            try:
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req) as response:
+                    content = response.read().decode('utf-8')
                 
-                # Iterate through columns to find shifts
-                for i in range(1, len(row)):
-                    if i >= len(dates): break
+                reader = list(csv.reader(io.StringIO(content)))
+                
+                if not reader or len(reader) < 2:
+                    continue
+
+                dates = reader[0]
+                days = reader[1]
+                
+                # Parse start date from the first date column (index 1)
+                start_date_dt = datetime.min
+                if len(dates) > 1:
+                    try:
+                        # Date format is DD.MM
+                        # We assume current year or next year
+                        date_str = dates[1].strip()
+                        if date_str:
+                            # Add year. If it's late in the year and date is Jan, it's next year.
+                            now = datetime.now()
+                            dt = datetime.strptime(f"{date_str}.{now.year}", "%d.%m.%Y")
+                            
+                            # Heuristic for year transition:
+                            # If current month is Nov/Dec and sheet date is Jan/Feb, add 1 year.
+                            # If current month is Jan/Feb and sheet date is Nov/Dec, subtract 1 year.
+                            if now.month >= 11 and dt.month <= 2:
+                                dt = dt.replace(year=now.year + 1)
+                            elif now.month <= 2 and dt.month >= 11:
+                                dt = dt.replace(year=now.year - 1)
+                                
+                            start_date_dt = dt
+                    except:
+                        pass
+                
+                current_role = None
+                
+                for row in reader[2:]:
+                    if not row: continue
                     
-                    shift = row[i].strip()
-                    date = dates[i].strip()
-                    day = days[i].strip() if i < len(days) else ""
+                    full_name = row[0].strip()
                     
-                    if shift:
-                        hours = calculate_shift_hours(shift)
-                        payment = hours * hourly_rate
-                        total_hours += hours
-                        total_payment += payment
+                    if 'мойка' in full_name.lower() or full_name.lower() in ['ольга', 'екатерина', 'наталья']:
+                        break
+                    
+                    detected_role = detect_role_header(full_name)
+                    if detected_role:
+                        current_role = detected_role
+                        continue
+                    
+                    if surname.lower() in full_name.lower():
+                        hourly_rate = get_hourly_rate_by_role(current_role)
                         
-                        # Map day abbreviation to full name
-                        day_map = {
-                            'пн': 'Понедельник',
-                            'вт': 'Вторник',
-                            'ср': 'Среда',
-                            'чт': 'Четверг',
-                            'пт': 'Пятница',
-                            'сб': 'Суббота',
-                            'вс': 'Воскресенье'
-                        }
-                        day_full = day_map.get(day.lower(), day)
+                        shifts = []
+                        total_hours = 0
+                        total_payment = 0
                         
-                        shifts.append(f"• {day_full}, {date} — {shift}")
-                
-                # Build header
-                role_display = current_role.capitalize() if current_role else "Не указана"
-                schedule_lines.append(f"🗓 **График работы**\n👤 {full_name}\n💼 Роль: {role_display}\n")
-                if total_hours > 0:
-                    schedule_lines.append(f"⏱ Общие часы за неделю: {int(total_hours)} часов")
-                    schedule_lines.append(f"💵 Ставка: {hourly_rate}₽/час")
-                    schedule_lines.append(f"💰 Оплата за неделю: {int(total_payment):,}₽ (Без учета надбавки за стажа)\n".replace(',', ' '))
-                
-                # Add shifts
-                schedule_lines.extend(shifts)
-                break
+                        for i in range(1, len(row)):
+                            if i >= len(dates): break
+                            
+                            shift = row[i].strip()
+                            date = dates[i].strip()
+                            day = days[i].strip() if i < len(days) else ""
+                            
+                            if shift:
+                                hours = calculate_shift_hours(shift)
+                                payment = hours * hourly_rate
+                                total_hours += hours
+                                total_payment += payment
+                                
+                                day_map = {
+                                    'пн': 'Понедельник', 'вт': 'Вторник', 'ср': 'Среда',
+                                    'чт': 'Четверг', 'пт': 'Пятница', 'сб': 'Суббота', 'вс': 'Воскресенье'
+                                }
+                                day_full = day_map.get(day.lower(), day)
+                                
+                                shifts.append(f"• {day_full}, {date} — {shift}")
+                        
+                        if shifts:
+                            role_display = current_role.capitalize() if current_role else "Не указана"
+                            
+                            # Extract date range from sheet name if possible, else use sheet name
+                            # Sheet names: "Кухня 17 - 23", "кухня 24-30"
+                            # We want "17 - 23" or "17.11 — 23.11" if we can guess month
+                            # Let's stick to the sheet name numbers for now but clean it up
+                            
+                            clean_sheet_name = sheet_name.replace('кухня', '').replace('Кухня', '').strip()
+                            # Remove trailing dots or chars
+                            clean_sheet_name = clean_sheet_name.strip('.')
+                            
+                            header = f"🗓 <b>График работы</b> ({clean_sheet_name})\n👤 <b>{full_name}</b>\n💼 {role_display}\n"
+                            
+                            stats = ""
+                            if total_hours > 0:
+                                stats += f"📊 <b>Итоги недели:</b>\n"
+                                stats += f"⏱ {int(total_hours)} часов  |  💰 {int(total_payment):,}₽ (без учёта надбавки за стажировку)\n".replace(',', ' ')
+                            
+                            shifts_text = "\n📋 <b>Смены:</b>\n"
+                            for shift_item in shifts:
+                                # shift_item is "• Понедельник, 17.11 — 9-23"
+                                # We want "🔹 Пн, 17.11: 9-23 (14ч)"
+                                
+                                # Parse the existing format
+                                # "• DayFull, Date — Shift"
+                                try:
+                                    parts = shift_item.split('—')
+                                    left = parts[0].replace('•', '').strip() # "Понедельник, 17.11"
+                                    shift_time = parts[1].strip() # "9-23"
+                                    
+                                    day_date = left.split(',')
+                                    day_full = day_date[0].strip()
+                                    date_short = day_date[1].strip()
+                                    
+                                    # Shorten day
+                                    day_map_short = {
+                                        'Понедельник': 'Пн', 'Вторник': 'Вт', 'Среда': 'Ср',
+                                        'Четверг': 'Чт', 'Пятница': 'Пт', 'Суббота': 'Сб', 'Воскресенье': 'Вс'
+                                    }
+                                    day_short = day_map_short.get(day_full, day_full[:2])
+                                    
+                                    # Calculate duration again for display
+                                    duration = calculate_shift_hours(shift_time)
+                                    
+                                    shifts_text += f"🔹 {day_short}, {date_short}: {shift_time} ({int(duration)}ч)\n"
+                                except:
+                                    shifts_text += f"{shift_item}\n"
+                            
+                            text = header + "\n" + stats + shifts_text
+                            
+                            schedules.append({
+                                'text': text,
+                                'start_date': start_date_dt,
+                                'sheet_name': sheet_name
+                            })
+                        break
+                        
+            except Exception as e:
+                logger.error(f"Error processing sheet {sheet_name}: {e}")
+                continue
         
-        if not found:
-            return f"Сотрудник с фамилией '{surname}' не найден в графике."
-            
-        if len(schedule_lines) == 1:
-            return f"График для {surname} найден, но смен не обнаружено."
-            
-        return "\n".join(schedule_lines)
+        # Sort schedules by date
+        schedules.sort(key=lambda x: x['start_date'])
+        
+        return schedules
 
     except Exception as e:
         logger.error(f"Error fetching schedule: {e}")
-        return "Произошла ошибка при получении графика. Попробуй позже."
+        return []
 
-async def get_who_on_shift(target_date: str, surname: str = None):
+async def get_shifts_for_date(target_date: str):
     """
-    Get all employees working on a specific date, grouped by role
-    target_date: format "DD.MM" e.g. "24.11"
-    surname: optional, to show the user's shift time in the header
+    Get all shifts for a specific date.
+    Returns a list of dicts: {'name': str, 'role': str, 'shift': str}
     """
     try:
-        async with httpx.AsyncClient(follow_redirects=True) as client:
-            response = await client.get(SPREADSHEET_URL)
-            response.raise_for_status()
+        sheets = await sheet_manager.get_sheets()
+        if not sheets:
+            return []
             
-        content = response.content.decode('utf-8')
-        reader = list(csv.reader(io.StringIO(content)))
-        
-        if not reader or len(reader) < 2:
-            return "Ошибка: Не удалось прочитать таблицу."
-
-        dates = reader[0]
-        days = reader[1]
-        
-        # Find the column index for the target date
-        target_col = None
-        target_day = None
+        target_sheet_content = None
         actual_date = None
         
-        # First, try to find the exact date
-        for i, date in enumerate(dates):
-            date_stripped = date.strip()
-            if date_stripped == target_date:
-                target_col = i
-                target_day = days[i].strip() if i < len(days) else ""
-                actual_date = date_stripped
-                break
-        
-        # If not found, find the next available date
-        if target_col is None:
-            from datetime import datetime
+        for sheet in sheets:
+            gid = sheet['gid']
+            url = f"https://docs.google.com/spreadsheets/d/1hbvUroW0SxAbTbsn0nn-9wJyYKz-zLDJQ_PS7b83SzA/export?format=csv&gid={gid}"
+            
             try:
-                target_dt = datetime.strptime(f"{target_date}.2025", "%d.%m.%Y")
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req) as response:
+                    content = response.read().decode('utf-8')
                 
-                for i, date in enumerate(dates):
-                    date_stripped = date.strip()
-                    if date_stripped and '.' in date_stripped:
-                        try:
-                            schedule_dt = datetime.strptime(f"{date_stripped}.2025", "%d.%m.%Y")
-                            if schedule_dt >= target_dt:
-                                target_col = i
-                                target_day = days[i].strip() if i < len(days) else ""
-                                actual_date = date_stripped
-                                break
-                        except:
-                            continue
+                reader = list(csv.reader(io.StringIO(content)))
+                
+                if not reader or len(reader) < 2:
+                    continue
+                    
+                dates = reader[0]
+                
+                # Check if target_date is in this sheet
+                if target_date in [d.strip() for d in dates]:
+                    target_sheet_content = reader
+                    actual_date = target_date
+                    break
             except:
-                pass
+                continue
         
-        if target_col is None:
-            return f"Дата {target_date} не найдена в графике, и нет доступных будущих смен."
+        if not target_sheet_content:
+             return []
+
+        reader = target_sheet_content
+        dates = reader[0]
         
-        # Collect employees by role
-        employees_by_role = {}
+        # Find column index
+        target_col = -1
+        for i, date in enumerate(dates):
+            if date.strip() == actual_date:
+                target_col = i
+                break
+                
+        if target_col == -1:
+            return []
+
+        # Collect employees
+        shifts_data = []
         current_role = None
-        user_shift_time = None
-        total_count = 0
         
         for row in reader[2:]:
             if not row: continue
@@ -252,39 +326,61 @@ async def get_who_on_shift(target_date: str, surname: str = None):
             detected_role = detect_role_header(full_name)
             if detected_role:
                 current_role = detected_role
-                if current_role not in employees_by_role:
-                    employees_by_role[current_role] = []
                 continue
             
             # Check if employee has a shift on this date
             if target_col < len(row):
                 shift = row[target_col].strip()
                 if shift:
-                    total_count += 1
-                    role_display = current_role.capitalize() if current_role else "Неизвестно"
-                    
-                    # Add to role group
-                    if current_role and current_role in employees_by_role:
-                        employees_by_role[current_role].append(f"👤 {full_name} ({shift})")
-                    
-                    # Check if this is the user
-                    if surname and surname.lower() in full_name.lower():
-                        user_shift_time = shift
+                    shifts_data.append({
+                        'name': full_name,
+                        'role': current_role,
+                        'shift': shift
+                    })
         
-        if total_count == 0:
-            return f"На {actual_date} нет смен в графике."
+        return shifts_data
+
+    except Exception as e:
+        logger.error(f"Error fetching shifts for date: {e}")
+        return []
+
+async def get_who_on_shift(target_date: str, surname: str = None):
+    """
+    Get all employees working on a specific date, grouped by role
+    target_date: format "DD.MM" e.g. "24.11"
+    surname: optional, to show the user's shift time in the header
+    """
+    try:
+        shifts_data = await get_shifts_for_date(target_date)
+        
+        if not shifts_data:
+             return f"На {target_date} нет смен в графике или график не найден."
+
+        # Group by role
+        employees_by_role = {}
+        user_shift_time = None
+        total_count = len(shifts_data)
+        
+        for item in shifts_data:
+            role = item['role']
+            name = item['name']
+            shift = item['shift']
+            
+            if role:
+                if role not in employees_by_role:
+                    employees_by_role[role] = []
+                employees_by_role[role].append(f"👤 {name} ({shift})")
+            
+            if surname and surname.lower() in name.lower():
+                user_shift_time = shift
         
         # Build output
         lines = []
         
-        # Show if we're displaying a different date than requested
-        if actual_date != target_date:
-            lines.append(f"ℹ️ Дата {target_date} не найдена. Показываю ближайшую дату:\n")
-        
         # Header with user's shift if found
         if user_shift_time:
             lines.append(f"🕐 Твоя смена сегодня: {user_shift_time}")
-        lines.append(f"📅 Дата: {actual_date}")
+        lines.append(f"📅 Дата: {target_date}")
         lines.append(f"👥 Коллеги на смене: {total_count} человек(а)\n")
         
         # Role groups
@@ -306,7 +402,7 @@ async def get_who_on_shift(target_date: str, surname: str = None):
                 lines.append("")  # Empty line between roles
         
         return "\n".join(lines)
-
+        
     except Exception as e:
         logger.error(f"Error fetching who's on shift: {e}")
         return "Произошла ошибка при получении данных о смене."
@@ -319,11 +415,11 @@ async def get_preps(day_index: int, is_morning: bool):
     is_morning: True for Morning, False for Evening
     """
     try:
-        async with httpx.AsyncClient(follow_redirects=True) as client:
-            response = await client.get(PREPS_URL)
-            response.raise_for_status()
+        import urllib.request
+        req = urllib.request.Request(PREPS_URL, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as response:
+            content = response.read().decode('utf-8')
             
-        content = response.content.decode('utf-8')
         reader = list(csv.reader(io.StringIO(content)))
         
         if not reader or len(reader) < 15:

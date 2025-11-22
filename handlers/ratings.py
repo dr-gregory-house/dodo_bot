@@ -47,6 +47,8 @@ async def check_authorization(context: ContextTypes.DEFAULT_TYPE):
         return True, "Мишра"
     elif 'ахмитенко' in surname:
         return True, "Менеджер"
+    elif 'булатова' in surname:
+        return True, "Менеджер"
     
     return False, None
 
