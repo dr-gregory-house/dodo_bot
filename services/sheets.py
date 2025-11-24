@@ -409,12 +409,28 @@ async def get_who_on_shift(target_date: str, surname: str = None):
 
 PREPS_URL = "https://docs.google.com/spreadsheets/d/1TdoxhVu3l2blTtpf_ekoIESR7MYQDxs1/export?format=csv&gid=1242464660"
 
+
+
+def load_preps_config():
+    try:
+        import json
+        import os
+        config_path = 'data/preps_config.json'
+        if not os.path.exists(config_path):
+            return None
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading preps config: {e}")
+        return None
+
 async def get_preps(day_index: int, is_morning: bool):
     """
     day_index: 0=Mon, 1=Tue, ..., 6=Sun
     is_morning: True for Morning, False for Evening
     """
     try:
+        # 1. Fetch Vegetables from Sheet (Existing Logic)
         import urllib.request
         req = urllib.request.Request(PREPS_URL, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req) as response:
@@ -422,34 +438,116 @@ async def get_preps(day_index: int, is_morning: bool):
             
         reader = list(csv.reader(io.StringIO(content)))
         
-        if not reader or len(reader) < 15:
-            return "Ошибка: Не удалось прочитать таблицу заготовок."
-
-        # Define rows based on Morning/Evening
-        # Morning: Rows 2-8 (indices 2-8)
-        # Evening: Rows 10-16 (indices 10-16)
-        start_row = 2 if is_morning else 10
-        end_row = 9 if is_morning else 17
-        
-        # Column mapping: Mon=0, Tue=2, Wed=4, Thu=6, Fri=8, Sat=10, Sun=12
-        col_idx = day_index * 2
-        
         items = []
-        for i in range(start_row, end_row):
-            if i >= len(reader): break
-            row = reader[i]
-            if len(row) <= col_idx + 1: continue
+        
+        if reader and len(reader) >= 15:
+            # Define rows based on Morning/Evening
+            # Morning: Rows 2-8 (indices 2-8)
+            # Evening: Rows 10-16 (indices 10-16)
+            start_row = 2 if is_morning else 10
+            end_row = 9 if is_morning else 17
             
-            item_name = row[col_idx].strip()
-            quantity = row[col_idx + 1].strip()
+            # Column mapping: Mon=0, Tue=2, Wed=4, Thu=6, Fri=8, Sat=10, Sun=12
+            col_idx = day_index * 2
             
-            # Skip header rows or empty items
-            if not item_name or "Дни недели" in item_name or "Кол-во" in item_name:
-                continue
+            items.append("🥦 **Овощи:**")
             
-            if item_name and quantity:
-                items.append(f"**{item_name}**: `{quantity}` лекс.")
+            chicken_fillet_item = None
+            
+            for i in range(start_row, end_row):
+                if i >= len(reader): break
+                row = reader[i]
+                if len(row) <= col_idx + 1: continue
                 
+                item_name = row[col_idx].strip()
+                quantity = row[col_idx + 1].strip()
+                
+                # Skip header rows or empty items
+                if not item_name or "Дни недели" in item_name or "Кол-во" in item_name:
+                    continue
+                
+                if item_name and quantity:
+                    # Check for Chicken Fillet to move to Meat
+                    if "филе курицы" in item_name.lower() or "цыпленок" in item_name.lower():
+                        chicken_fillet_item = f"• {item_name}: `{quantity}` лекс."
+                    else:
+                        items.append(f"• {item_name}: `{quantity}` лекс.")
+        else:
+            items.append("⚠️ Не удалось загрузить овощи из таблицы.")
+
+        # 2. Load Meat and Sauces from JSON
+        config = load_preps_config()
+        if config:
+            # Meat Schedule
+            meat_schedule = config.get('meat_schedule', {})
+            day_key = str(day_index)
+            if day_key in meat_schedule:
+                time_key = "morning" if is_morning else "evening"
+                meat_items = meat_schedule[day_key].get(time_key, [])
+                
+                if meat_items:
+                    # Separate Feta (Брынза) to add to Vegetables
+                    feta_item = None
+                    filtered_meat_items = []
+                    for item in meat_items:
+                        if "брынза" in item['name'].lower():
+                            feta_item = item
+                        else:
+                            filtered_meat_items.append(item)
+                    
+                    # Add Feta to Vegetables section (if Vegetables section exists)
+                    if feta_item:
+                        # If we have vegetables from sheet, append Feta there
+                        # If not, we might need to create the header
+                        if not items or "🥦 **Овощи:**" not in items[0]:
+                             items.insert(0, "🥦 **Овощи:**")
+                        
+                        items.append(f"• {feta_item['name']}: `{feta_item['quantity']}`")
+
+                    if filtered_meat_items or chicken_fillet_item:
+                        items.append("\n🥩 **Мясо:**")
+                        if chicken_fillet_item:
+                             items.append(chicken_fillet_item)
+                        for item in filtered_meat_items:
+                            items.append(f"• {item['name']}: `{item['quantity']}`")
+            
+            # Canned Goods (Morning only)
+            if is_morning:
+                canned_schedule = config.get('canned_schedule', {})
+                if day_key in canned_schedule:
+                    canned_items = canned_schedule[day_key].get('morning', [])
+                    if canned_items:
+                        items.append("\n🥫 **Консервы:**")
+                        for item in canned_items:
+                            items.append(f"• {item['name']}: `{item['quantity']}`")
+
+            # Seafood (Morning only)
+            if is_morning:
+                seafood_schedule = config.get('seafood_schedule', {})
+                if day_key in seafood_schedule:
+                    seafood_items = seafood_schedule[day_key].get('morning', [])
+                    if seafood_items:
+                        items.append("\n🦐 **Морепродукты:**")
+                        for item in seafood_items:
+                            items.append(f"• {item['name']}: `{item['quantity']}`")
+
+            # Cashier Items (Morning only - daily items for cashier station)
+            if is_morning:
+                cashier_items = config.get('cashier_items', [])
+                if cashier_items:
+                    items.append("\n🧾 **На кассу (должны быть до 10 часов!):**")
+                    for item in cashier_items:
+                        items.append(f"• {item['name']}: `{item['quantity']}`")
+
+
+            # Sauces (Evening only)
+            if not is_morning:
+                sauces = config.get('sauces', [])
+                if sauces:
+                    items.append("\n🥣 **Соуса:**")
+                    for sauce in sauces:
+                        items.append(f"• {sauce['name']}: `{sauce['quantity']}`")
+        
         if not items:
             return "Нет заготовок на этот день/смену."
             
@@ -457,10 +555,105 @@ async def get_preps(day_index: int, is_morning: bool):
         days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
         
         header = f"🔪 **Заготовки на {days[day_index]}** ({title})\n━━━━━━━━━━━━\n"
-        body = "\n".join([f"• {item}" for item in items])
+        body = "\n".join(items)
         
         return header + body
 
     except Exception as e:
         logger.error(f"Error fetching preps: {e}")
         return "Произошла ошибка при получении заготовок."
+
+async def get_all_employees():
+    """
+    Get a list of all unique employee names from the schedule.
+    """
+    try:
+        # Load config
+        import json
+        import os
+        config_path = 'data/employees_config.json'
+        blacklist = []
+        aliases = {}
+        
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    blacklist = [name.lower() for name in config.get('blacklist', [])]
+                    # Flatten aliases for reverse lookup: "Variant" -> "Canonical"
+                    for canonical, variants in config.get('aliases', {}).items():
+                        for variant in variants:
+                            aliases[variant.lower()] = canonical
+            except Exception as e:
+                logger.error(f"Error loading employees config: {e}")
+
+        sheets = await sheet_manager.get_sheets()
+        if not sheets:
+            return []
+            
+        employees = set()
+        
+        # Manual additions (Admins/Managers not in schedule)
+        MANUAL_EMPLOYEES = ["Лилия Смолкина"]
+        for manual_emp in MANUAL_EMPLOYEES:
+            employees.add(manual_emp)
+        
+        for sheet in sheets:
+            gid = sheet['gid']
+            url = f"https://docs.google.com/spreadsheets/d/1hbvUroW0SxAbTbsn0nn-9wJyYKz-zLDJQ_PS7b83SzA/export?format=csv&gid={gid}"
+            
+            try:
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req) as response:
+                    content = response.read().decode('utf-8')
+                
+                reader = list(csv.reader(io.StringIO(content)))
+                
+                if not reader or len(reader) < 2:
+                    continue
+                
+                for row in reader[2:]:
+                    if not row: continue
+                    
+                    full_name = row[0].strip()
+                    
+                    # Skip empty or specific non-employee rows
+                    if not full_name: continue
+                    if 'мойка' in full_name.lower(): break # Stop at Moyka
+                    if full_name.lower() in ['ольга', 'екатерина', 'наталья']: break 
+                    
+                    if detect_role_header(full_name):
+                        continue
+                        
+                    # Also skip if it looks like a date or empty
+                    if len(full_name) < 2: continue
+                    
+                    # Normalization
+                    # 1. Replace multiple spaces with single space
+                    normalized_name = ' '.join(full_name.split())
+                    
+                    # 2. Check blacklist
+                    is_blacklisted = False
+                    for black_name in blacklist:
+                        if black_name in normalized_name.lower():
+                            is_blacklisted = True
+                            break
+                    if is_blacklisted:
+                        continue
+                        
+                    # 3. Handle aliases/duplicates
+                    # Check if this name is an alias for something else
+                    if normalized_name.lower() in aliases:
+                        normalized_name = aliases[normalized_name.lower()]
+                    
+                    employees.add(normalized_name)
+                    
+            except Exception as e:
+                logger.error(f"Error processing sheet for employees: {e}")
+                continue
+                
+        return sorted(list(employees))
+        
+    except Exception as e:
+        logger.error(f"Error fetching all employees: {e}")
+        return []

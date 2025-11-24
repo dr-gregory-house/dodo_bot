@@ -136,11 +136,15 @@ async def send_who_notification(context: ContextTypes.DEFAULT_TYPE):
 
 async def check_shifts_and_notify(context: ContextTypes.DEFAULT_TYPE):
     """
-    Check shifts for today and notify users 1 hour before start.
+    Check shifts for today and tomorrow and notify users 1 hour before start.
     """
     try:
-        now = datetime.now()
-        today_str = now.strftime("%d.%m")
+        import pytz
+        tz = pytz.timezone('Europe/Moscow')
+        now = datetime.now(tz)
+        
+        # Check today and tomorrow to handle midnight shifts
+        dates_to_check = [now, now + timedelta(days=1)]
         
         # Load data
         users = load_json(USERS_FILE)
@@ -149,71 +153,118 @@ async def check_shifts_and_notify(context: ContextTypes.DEFAULT_TYPE):
         if not users:
             return
 
-        # Get shifts for today
-        shifts = await get_shifts_for_date(today_str)
-        if not shifts:
-            return
+        for date_obj in dates_to_check:
+            date_str = date_obj.strftime("%d.%m")
+            
+            # Get shifts for date
+            shifts = await get_shifts_for_date(date_str)
+            if not shifts:
+                continue
 
-        for shift_data in shifts:
-            name = shift_data['name']
-            shift_time = shift_data['shift']
-            
-            # Find user_id for this name
-            user_id = None
-            for uid, surname in users.items():
-                if surname.lower() in name.lower():
-                    user_id = uid
-                    break
-            
-            if not user_id:
-                continue
+            for shift_data in shifts:
+                name = shift_data['name']
+                shift_time = shift_data['shift']
                 
-            # Check if already notified today
-            last_notified = notifications.get(user_id)
-            if last_notified == today_str:
-                continue
-                
-            # Parse start time
-            start_h, start_m = parse_start_time(shift_time)
-            if start_h is None:
-                continue
-                
-            # Construct shift start datetime
-            shift_start = now.replace(hour=start_h, minute=start_m, second=0, microsecond=0)
-            
-            # Handle case where shift start is tomorrow (unlikely for "today's shift" but possible if parsed wrong)
-            # Actually, get_shifts_for_date returns shifts for the date we asked.
-            # So shift_start is on 'now' date.
-            
-            # Calculate time difference
-            # If shift is 9:00 and now is 8:00, diff is 1 hour.
-            # We want to notify if 0 < (shift_start - now) <= 1 hour + buffer?
-            # Requirement: "1 hour before shift"
-            
-            time_until_shift = shift_start - now
-            minutes_until = time_until_shift.total_seconds() / 60
-            
-            # Notify if within 60 minutes (and not passed more than 15 mins ago? No, strictly before)
-            # Let's say we check every 5 mins.
-            # We want to catch it when it's between 55 and 65 minutes?
-            # Or just "less than 60 mins and not notified".
-            # But if we restart bot at 8:30 for 9:00 shift, we should notify.
-            # So: if 0 < minutes_until <= 65 (give 5 min buffer for the cron job)
-            
-            if 0 < minutes_until <= 65:
-                try:
-                    await context.bot.send_message(
-                        chat_id=user_id,
-                        text="Пора собираться на работу, опаздывать не красиво!"
-                    )
-                    logger.info(f"Sent notification to {name} ({user_id}) for shift {shift_time}")
+                # Find ALL user_ids for this name (handle duplicates)
+                matching_user_ids = []
+                for uid, user_surname in users.items():
+                    # Strict check: if user_surname is full name (new system) or surname (old system)
+                    # New system: user_surname == "Ivanov Ivan" -> exact match or contained
+                    # Old system: user_surname == "Ivanov" -> contained
                     
-                    # Mark as notified
-                    notifications[user_id] = today_str
-                    save_json(NOTIFICATIONS_FILE, notifications)
+                    if user_surname.lower() in name.lower():
+                        matching_user_ids.append(uid)
+                
+                if not matching_user_ids:
+                    continue
                     
-                except Exception as e:
-                    logger.error(f"Failed to send notification to {user_id}: {e}")
+                for user_id in matching_user_ids:
+                    # Check if already notified for this date
+                    # We store "date_str" in notifications. 
+                    # If a user has multiple shifts in a day (rare), this might skip the second one.
+                    # But usually one shift per day.
+                    last_notified = notifications.get(user_id)
+                    if last_notified == date_str:
+                        continue
+                        
+                    # Parse start time
+                    start_h, start_m = parse_start_time(shift_time)
+                    if start_h is None:
+                        continue
+                        
+                    # Construct shift start datetime
+                    # We need to be careful with the date. 
+                    # shift_data comes from 'date_str' which corresponds to 'date_obj'
+                    
+                    shift_start = date_obj.replace(hour=start_h, minute=start_m, second=0, microsecond=0)
+                    
+                    # Handle case where parsed hour is < 24 but technically it might be next day?
+                    # No, get_shifts_for_date returns shifts for that specific calendar date.
+                    # So if date is 24.11 and shift is 00:00, it means 00:00 on 24.11.
+                    # Wait, usually 00:00 shift is considered start of the day.
+                    # If the schedule says "17-02", the 02 is next day.
+                    # But parse_start_time only returns start time.
+                    # If shift is "00-12", start is 00.
+                    
+                    # Calculate time difference
+                    # We want to notify if we are roughly 1 hour before.
+                    
+                    time_until_shift = shift_start - now
+                    minutes_until = time_until_shift.total_seconds() / 60
+                    
+                    # Notify if within 60 minutes (and not passed)
+                    # Range: 0 < minutes <= 65
+                    
+                    if 0 < minutes_until <= 65:
+                        try:
+                            await context.bot.send_message(
+                                chat_id=user_id,
+                                text=f"⏰ Напоминание!\nТвоя смена начинается через час ({shift_time}).\nПора собираться на работу!"
+                            )
+                            logger.info(f"Sent notification to {name} ({user_id}) for shift {shift_time} on {date_str}")
+                            
+                            # Mark as notified for this date
+                            notifications[user_id] = date_str
+                            save_json(NOTIFICATIONS_FILE, notifications)
+                            
+                        except Exception as e:
+                            logger.error(f"Failed to send notification to {user_id}: {e}")
 
     except Exception as e:
         logger.error(f"Error in check_shifts_and_notify: {e}")
+
+async def send_feedback_notification(context: ContextTypes.DEFAULT_TYPE):
+    """
+    Send feedback notification to the group.
+    Scheduled to run daily at 10:30.
+    """
+    try:
+        # Load group ID
+        group_data = load_json(GROUP_FILE)
+        group_id = group_data.get('group_id')
+        
+        if not group_id:
+            logger.warning("Group ID not found in group.json")
+            return
+
+        feedback_file = 'data/feedback.text'
+        if not os.path.exists(feedback_file):
+            logger.warning(f"Feedback file not found: {feedback_file}")
+            return
+            
+        with open(feedback_file, 'r', encoding='utf-8') as f:
+            message = f.read()
+            
+        if not message.strip():
+            logger.warning("Feedback file is empty")
+            return
+        
+        await context.bot.send_message(
+            chat_id=group_id,
+            text=message,
+            parse_mode='Markdown'
+        )
+        logger.info(f"Sent feedback notification to group {group_id}")
+        
+    except Exception as e:
+        logger.error(f"Error sending feedback notification: {e}")

@@ -20,6 +20,9 @@ async def start_preps(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return DAY_SELECT
 
 async def select_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Abort if a command is received while we expect a day name.
+    if update.message.text.startswith('/'):
+        return ConversationHandler.END
     text = update.message.text
     if text == "Главное меню" or text == "Назад":
         from handlers.start import show_menu
@@ -40,6 +43,9 @@ async def select_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return TIME_SELECT
 
 async def select_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Abort if a command is received while we expect a time selection.
+    if update.message.text.startswith('/'):
+        return ConversationHandler.END
     text = update.message.text
     if text == "Назад":
         return await start_preps(update, context)

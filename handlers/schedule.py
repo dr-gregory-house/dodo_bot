@@ -5,6 +5,21 @@ from datetime import datetime, timedelta
 
 async def schedule_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     surname = context.user_data.get('surname')
+    
+    # Fallback: Try loading from file if not in context
+    if not surname:
+        try:
+            import json
+            import os
+            if os.path.exists('data/users.json'):
+                with open('data/users.json', 'r', encoding='utf-8') as f:
+                    users = json.load(f)
+                    surname = users.get(str(update.effective_user.id))
+                    if surname:
+                        context.user_data['surname'] = surname
+        except Exception as e:
+            print(f"Error loading user surname: {e}")
+
     if not surname:
         await update.message.reply_text("Сначала введи фамилию через /start")
         return
@@ -101,6 +116,20 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         offset = int(data.split(":")[1])
         surname = context.user_data.get('surname')
         
+        if not surname:
+            # Fallback: Try loading from file
+            try:
+                import json
+                import os
+                if os.path.exists('data/users.json'):
+                    with open('data/users.json', 'r', encoding='utf-8') as f:
+                        users = json.load(f)
+                        surname = users.get(str(update.effective_user.id))
+                        if surname:
+                            context.user_data['surname'] = surname
+            except:
+                pass
+
         if not surname:
             await query.answer("⚠️ Сессия истекла. Введи фамилию заново через /start", show_alert=True)
             try:

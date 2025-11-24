@@ -29,6 +29,9 @@ async def start_defrost(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return DEFROST_DAY_SELECT
 
 async def select_defrost_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Abort if a command is received while we expect a day name.
+    if update.message.text.startswith('/'):
+        return ConversationHandler.END
     text = update.message.text
     
     if text == "Назад":

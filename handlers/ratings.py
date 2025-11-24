@@ -38,9 +38,27 @@ async def get_ratings(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # --- Upload Handlers ---
 
-async def check_authorization(context: ContextTypes.DEFAULT_TYPE):
+async def check_authorization(context: ContextTypes.DEFAULT_TYPE, user_id: int):
     """Check if user is authorized to upload ratings. Returns (is_authorized, role)"""
-    surname = context.user_data.get('surname', '').lower()
+    surname = context.user_data.get('surname')
+    
+    if not surname:
+        try:
+            import json
+            import os
+            if os.path.exists('data/users.json'):
+                with open('data/users.json', 'r', encoding='utf-8') as f:
+                    users = json.load(f)
+                    surname = users.get(str(user_id))
+                    if surname:
+                        context.user_data['surname'] = surname
+        except:
+            pass
+            
+    if not surname:
+        surname = ''
+        
+    surname = surname.lower()
     
     # Hardcoded authorized managers
     if 'мишра' in surname:
@@ -55,7 +73,7 @@ async def check_authorization(context: ContextTypes.DEFAULT_TYPE):
 async def start_upload_rs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🔍 **Проверка прав доступа...**", parse_mode='Markdown')
     
-    is_authorized, role = await check_authorization(context)
+    is_authorized, role = await check_authorization(context, update.effective_user.id)
     
     if not is_authorized:
         await update.message.reply_text(
@@ -74,7 +92,7 @@ async def start_upload_rs(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def start_upload_rp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🔍 **Проверка прав доступа...**", parse_mode='Markdown')
     
-    is_authorized, role = await check_authorization(context)
+    is_authorized, role = await check_authorization(context, update.effective_user.id)
     
     if not is_authorized:
         await update.message.reply_text(

@@ -1,0 +1,257 @@
+{
+  "employees": [
+    {
+      "name": "Смолкина",
+      "role": "manager",
+      "med_commission_date": "27.01.2026",
+      "san_min_date": "10.01.2026"
+    },
+    {
+      "name": "Ахмитенко",
+      "role": "manager",
+      "med_commission_date": "21.01.2026",
+      "san_min_date": "30.10.2026"
+    },
+    {
+      "name": "Лемехова",
+      "role": "manager",
+      "med_commission_date": "24.04.2026",
+      "san_min_date": "15.04.2027"
+    },
+    {
+      "name": "Андриуца",
+      "role": "cashier",
+      "med_commission_date": "26.03.2026",
+      "san_min_date": "25.03.2027"
+    },
+    {
+      "name": "Кардаш",
+      "role": "cashier",
+      "med_commission_date": "14.10.2026",
+      "san_min_date": "10.01.2026"
+    },
+    {
+      "name": "Никитинская",
+      "role": "cashier",
+      "med_commission_date": "28.04.2026",
+      "san_min_date": "12.05.2026"
+    },
+    {
+      "name": "Терехина",
+      "role": "cashier",
+      "med_commission_date": "29.09.2026",
+      "san_min_date": "01.10.2027"
+    },
+    {
+      "name": "Поспеловская",
+      "role": "cashier",
+      "med_commission_date": "13.05.2026",
+      "san_min_date": "13.05.2027"
+    },
+    {
+      "name": "Дмитриевская",
+      "role": "cashier",
+      "med_commission_date": "31.03.2026",
+      "san_min_date": "18.06.2027"
+    },
+    {
+      "name": "Котова",
+      "role": "cashier",
+      "med_commission_date": "13.08.2026",
+      "san_min_date": "26.08.2026"
+    },
+    {
+      "name": "Васенькина",
+      "role": "cashier",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Пономарева",
+      "role": "cashier",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Левашова",
+      "role": "cashier",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Тошакова",
+      "role": "cashier",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Давыдова",
+      "role": "cashier",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Мурзина",
+      "role": "mentor",
+      "med_commission_date": "15.04.2026",
+      "san_min_date": "08.12.2025"
+    },
+    {
+      "name": "Сидоренко",
+      "role": "mentor",
+      "med_commission_date": "15.04.2026",
+      "san_min_date": "08.04.2026"
+    },
+    {
+      "name": "Чукмарева",
+      "role": "mentor",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Власова",
+      "role": "instructor",
+      "med_commission_date": "14.07.2026",
+      "san_min_date": "19.06.2026"
+    },
+    {
+      "name": "Кисляков",
+      "role": "instructor",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Бакилина",
+      "role": "universal",
+      "med_commission_date": "01.10.2026",
+      "san_min_date": "05.12.2025"
+    },
+    {
+      "name": "Бешенкина",
+      "role": "universal",
+      "med_commission_date": "23.07.2026",
+      "san_min_date": "18.07.2027"
+    },
+    {
+      "name": "Самсонов",
+      "role": "universal",
+      "med_commission_date": "11.09.2026",
+      "san_min_date": "04.09.2026"
+    },
+    {
+      "name": "Коротова",
+      "role": "pizzamaker",
+      "med_commission_date": "27.02.2026",
+      "san_min_date": "25.09.2027"
+    },
+    {
+      "name": "Захаров",
+      "role": "pizzamaker",
+      "med_commission_date": "29.04.2026",
+      "san_min_date": "30.04.2027"
+    },
+    {
+      "name": "Ивахина",
+      "role": "pizzamaker",
+      "med_commission_date": "27.05.2026",
+      "san_min_date": "19.06.2026"
+    },
+    {
+      "name": "Красков",
+      "role": "pizzamaker",
+      "med_commission_date": "11.09.2026",
+      "san_min_date": "07.08.2026"
+    },
+    {
+      "name": "Мишра",
+      "role": "pizzamaker",
+      "med_commission_date": "15.04.2026",
+      "san_min_date": "29.04.2027"
+    },
+    {
+      "name": "Ашиш",
+      "role": "pizzamaker",
+      "med_commission_date": "27.02.2026",
+      "san_min_date": "07.03.2027"
+    },
+    {
+      "name": "Николаева",
+      "role": "pizzamaker",
+      "med_commission_date": "19.02.2026",
+      "san_min_date": "27.02.2027"
+    },
+    {
+      "name": "Падхи",
+      "role": "pizzamaker",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Подкопаева",
+      "role": "pizzamaker",
+      "med_commission_date": "23.04.2026",
+      "san_min_date": "24.04.2027"
+    },
+    {
+      "name": "Струков",
+      "role": "pizzamaker",
+      "med_commission_date": "19.12.2025",
+      "san_min_date": "01.01.2027"
+    },
+    {
+      "name": "Юшкевич",
+      "role": "pizzamaker",
+      "med_commission_date": "02.04.2026",
+      "san_min_date": "25.09.2027"
+    },
+    {
+      "name": "Ткаченко",
+      "role": "pizzamaker",
+      "med_commission_date": "18.11.2026",
+      "san_min_date": "25.06.2027"
+    },
+    {
+      "name": "Цветкова",
+      "role": "pizzamaker",
+      "med_commission_date": "29.10.2026",
+      "san_min_date": "03.11.2027"
+    },
+    {
+      "name": "Павлов",
+      "role": "pizzamaker",
+      "med_commission_date": "22.04.2026",
+      "san_min_date": "31.07.2026"
+    },
+    {
+      "name": "Гончар",
+      "role": "pizzamaker",
+      "med_commission_date": "02.12.2025",
+      "san_min_date": "24.12.2026"
+    },
+    {
+      "name": "Саранш",
+      "role": "pizzamaker",
+      "med_commission_date": "07.10.2026",
+      "san_min_date": "02.11.2026"
+    },
+    {
+      "name": "Денисюк",
+      "role": "pizzamaker",
+      "med_commission_date": "14.05.2026",
+      "san_min_date": "13.05.2027"
+    },
+    {
+      "name": "Кузнецов",
+      "role": "pizzamaker",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Королёва",
+      "role": "pizzamaker",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Ушакова",
+      "role": "pizzamaker",
+      "status": "missing_docs"
+    },
+    {
+      "name": "Спрутский",
+      "role": "pizzamaker",
+      "san_min_date": "20.11.2027",
+      "med_commission_date": "19.11.2026"
+    }
+  ]
+}
