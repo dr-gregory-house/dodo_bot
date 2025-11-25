@@ -281,9 +281,35 @@ async def select_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
         type_name = "Сан. минимум"
     else:
         return SELECT_TYPE
-        
-    await query.edit_message_text(f"Введите новую дату для <b>{type_name}</b> в формате DD.MM.YYYY:", parse_mode='HTML')
+    
+    # Add cancel button during date input
+    keyboard = [[InlineKeyboardButton("❌ Отмена", callback_data="cancel_date_input")]]
+    await query.edit_message_text(
+        f"Введите новую дату для <b>{type_name}</b> в формате DD.MM.YYYY:",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='HTML'
+    )
     return INPUT_DATE
+
+async def cancel_date_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle cancel button during date input"""
+    query = update.callback_query
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
+    
+    await query.edit_message_text("❌ Редактирование отменено.")
+    # Give a moment before showing menu
+    import asyncio
+    await asyncio.sleep(0.5)
+    # Create a new message for the menu instead of editing
+    await query.message.reply_text("Возвращаюсь в меню...")
+    # Show menu in new message
+    from telegram import Update as FreshUpdate
+    fresh_update = FreshUpdate(update.update_id, message=query.message)
+    await medical_menu(fresh_update, context)
+    return ConversationHandler.END
 
 async def input_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
@@ -291,7 +317,11 @@ async def input_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         datetime.strptime(text, "%d.%m.%Y")
     except ValueError:
-        await update.message.reply_text("❌ Неверный формат. Пожалуйста, введите дату в формате DD.MM.YYYY (например, 25.12.2026):")
+        keyboard = [[InlineKeyboardButton("❌ Отмена", callback_data="cancel_date_input")]]
+        await update.message.reply_text(
+            "❌ Неверный формат. Пожалуйста, введите дату в формате DD.MM.YYYY (например, 25.12.2026):",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
         return INPUT_DATE
         
     name = context.user_data['edit_emp_name']
@@ -306,14 +336,22 @@ async def input_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"✅ Данные для <b>{name}</b> успешно обновлены!", parse_mode='HTML')
     else:
         await update.message.reply_text(f"❌ Ошибка при обновлении данных для <b>{name}</b>.", parse_mode='HTML')
-        
-    # Return to menu
-    await medical_menu(update, context)
+    
+    # Clear user data
+    context.user_data.clear()
+    
+    # Show menu in a new message to ensure buttons work
+    from telegram import Update as FreshUpdate
+    fresh_update = FreshUpdate(update.update_id, message=update.message)
+    await medical_menu(fresh_update, context)
     return ConversationHandler.END
 
 async def cancel_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Редактирование отменено.")
-    await medical_menu(update, context)
+    await update.message.reply_text("❌ Редактирование отменено.")
+    # Show menu in new message
+    from telegram import Update as FreshUpdate
+    fresh_update = FreshUpdate(update.update_id, message=update.message)
+    await medical_menu(fresh_update, context)
     return ConversationHandler.END
 
 # Handlers definition
@@ -324,9 +362,16 @@ medical_conv_handler = ConversationHandler(
     states={
         SELECT_EMPLOYEE: [CallbackQueryHandler(select_employee)],
         SELECT_TYPE: [CallbackQueryHandler(select_type)],
-        INPUT_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, input_date)]
+        INPUT_DATE: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, input_date),
+            CallbackQueryHandler(cancel_date_input, pattern="^cancel_date_input$")
+        ]
     },
-    fallbacks=[CallbackQueryHandler(select_employee, pattern="^cancel_edit$"), CommandHandler("cancel", cancel_edit)]
+    fallbacks=[
+        CallbackQueryHandler(select_employee, pattern="^cancel_edit$"),
+        CallbackQueryHandler(cancel_date_input, pattern="^cancel_date_input$"),
+        CommandHandler("cancel", cancel_edit)
+    ]
 )
 
 medical_handlers = [
