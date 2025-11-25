@@ -37,9 +37,10 @@ if [ ! -d ".git" ]; then
     git reset --hard origin/main
     echo "Git repository initialized and synced."
 else
-    # Pull latest code
-    echo "Pulling latest code..."
-    git pull origin main
+    # Update to latest code (use reset to handle local changes from deploy.yml)
+    echo "Updating to latest code..."
+    git fetch origin
+    git reset --hard origin/main
 fi
 
 # Restore production data files
