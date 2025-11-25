@@ -1,0 +1,154 @@
+{
+    "title": "Что должно быть в морозилке на 1 этаже",
+    "description": "Все в коробках",
+    "items": [
+        {
+            "name": "Цыпленок",
+            "quantity": 4
+        },
+        {
+            "name": "Наггетсы",
+            "quantity": 2
+        },
+        {
+            "name": "Паста",
+            "quantity": 4
+        },
+        {
+            "name": "Тортильи",
+            "quantity": 3
+        },
+        {
+            "name": "Чиабатта",
+            "quantity": 4
+        },
+        {
+            "name": "Пепперони",
+            "quantity": 3
+        },
+        {
+            "name": "Ветчина",
+            "quantity": 3
+        },
+        {
+            "name": "Креветки",
+            "quantity": 1
+        },
+        {
+            "name": "Креветки в панировке",
+            "quantity": 1
+        },
+        {
+            "name": "Картошка фри",
+            "quantity": 2
+        },
+        {
+            "name": "Картошка дольками",
+            "quantity": 1
+        },
+        {
+            "name": "Маффин шоколад",
+            "quantity": 2
+        },
+        {
+            "name": "Маффин карамель",
+            "quantity": 2
+        },
+        {
+            "name": "Говядина пряная",
+            "quantity": 2
+        },
+        {
+            "name": "Свиная шейка",
+            "quantity": 2
+        },
+        {
+            "name": "Сорбет клубника",
+            "quantity": 1
+        },
+        {
+            "name": "Сорбет манго-Чили",
+            "quantity": 1
+        },
+        {
+            "name": "Сорбет облепиха",
+            "quantity": 1
+        },
+        {
+            "name": "Чоризо",
+            "quantity": 1
+        },
+        {
+            "name": "Бекон",
+            "quantity": 2
+        },
+        {
+            "name": "Драники",
+            "quantity": 1
+        },
+        {
+            "name": "Сыр чедр",
+            "quantity": 1
+        },
+        {
+            "name": "Сырники",
+            "quantity": 2
+        },
+        {
+            "name": "Омлет",
+            "quantity": 4
+        },
+        {
+            "name": "Колбаски",
+            "quantity": 2
+        },
+        {
+            "name": "Тирамису",
+            "quantity": 2
+        },
+        {
+            "name": "Чизкейк классика",
+            "quantity": 1
+        },
+        {
+            "name": "Чизкейк банан",
+            "quantity": 1
+        },
+        {
+            "name": "Чизкейк карамель",
+            "quantity": 1
+        },
+        {
+            "name": "Чизкейк Дубайский",
+            "quantity": 1
+        },
+        {
+            "name": "Муравьишки",
+            "quantity": 1
+        },
+        {
+            "name": "Фондан",
+            "quantity": 2
+        },
+        {
+            "name": "Лимонный тарт",
+            "quantity": 2
+        },
+        {
+            "name": "Яблочный крамбл",
+            "quantity": 1
+        },
+        {
+            "name": "Кукис",
+            "quantity": 1
+        },
+        {
+            "name": "Пита",
+            "quantity": 1
+        },
+        {
+            "name": "Брусника",
+            "quantity": 1
+        }
+    ]
+}

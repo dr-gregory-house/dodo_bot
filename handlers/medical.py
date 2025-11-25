@@ -55,7 +55,8 @@ async def medical_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard = [
         [InlineKeyboardButton("📋 Список всех", callback_data="med_view_all")],
-        [InlineKeyboardButton("⚠️ Просроченные", callback_data="med_view_expiring")]
+        [InlineKeyboardButton("⚠️ Просроченные", callback_data="med_view_expiring")],
+        [InlineKeyboardButton("🏠 Главное меню", callback_data="med_main_menu")]
     ]
     
     if is_allowed:
@@ -72,7 +73,10 @@ async def medical_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def medical_button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
     
     if query.data == "med_view_all":
         data = load_medical_data()
@@ -136,7 +140,8 @@ async def medical_button_handler(update: Update, context: ContextTypes.DEFAULT_T
             else:
                 med = emp.get('med_commission_date', '—')
                 san = emp.get('san_min_date', '—')
-                line += f"   🏥 <code>{med}</code>   <code>{san}</code>\n"
+                line += f"   Комиссия: <code>{med}</code>\n"
+                line += f"   Сан.минимум: <code>{san}</code>\n"
             
             line += "\n" # Add space between entries
             
@@ -187,11 +192,20 @@ async def medical_button_handler(update: Update, context: ContextTypes.DEFAULT_T
     elif query.data == "med_menu":
         await medical_menu(update, context)
 
+    elif query.data == "med_main_menu":
+        # Return to main menu
+        await query.edit_message_text("Возвращаюсь в главное меню...")
+        from handlers.start import show_menu
+        await show_menu(update, context)
+
 # --- Edit Flow ---
 
 async def start_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
     
     # Double check permissions
     is_allowed, _ = check_permissions(update.effective_user.id)
@@ -220,7 +234,10 @@ async def start_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def select_employee(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
     
     data = query.data
     if data == "cancel_edit":
@@ -246,7 +263,10 @@ async def select_employee(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def select_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
     
     data = query.data
     if data == "cancel_edit":

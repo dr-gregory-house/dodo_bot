@@ -4,3 +4,6 @@ google-auth
 apscheduler
 python-dotenv
 pytz
+google-generativeai
+Pillow
+flask

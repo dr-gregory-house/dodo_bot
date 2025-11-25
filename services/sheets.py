@@ -21,17 +21,26 @@ HOURLY_RATES = {
 }
 
 def calculate_shift_hours(shift_time: str) -> float:
-    """Calculate hours from shift time like '9-17' or '09:00-17:00'"""
+    """Calculate hours from shift time like '9-17', '09:00-17:00', or '9-21(p)'"""
     try:
-        # Remove spaces and split on dash
+        # Remove spaces and colons
         shift_time = shift_time.replace(' ', '').replace(':', '')
+        
+        # Split on dash
         parts = shift_time.split('-')
         if len(parts) != 2:
             return 0
         
-        # Parse start and end times
-        start = int(parts[0]) if len(parts[0]) <= 2 else int(parts[0][:2])
-        end = int(parts[1]) if len(parts[1]) <= 2 else int(parts[1][:2])
+        # Extract only numeric characters from each part (handles annotations like (p), (д), etc.)
+        start_str = ''.join(c for c in parts[0] if c.isdigit())
+        end_str = ''.join(c for c in parts[1] if c.isdigit())
+        
+        if not start_str or not end_str:
+            return 0
+        
+        # Parse start and end times (take first 2 digits for times like 0900)
+        start = int(start_str) if len(start_str) <= 2 else int(start_str[:2])
+        end = int(end_str) if len(end_str) <= 2 else int(end_str[:2])
         
         # Calculate duration
         hours = end - start
@@ -173,17 +182,20 @@ async def get_schedule(surname: str):
                             
                             if shift:
                                 hours = calculate_shift_hours(shift)
-                                payment = hours * hourly_rate
-                                total_hours += hours
-                                total_payment += payment
                                 
-                                day_map = {
-                                    'пн': 'Понедельник', 'вт': 'Вторник', 'ср': 'Среда',
-                                    'чт': 'Четверг', 'пт': 'Пятница', 'сб': 'Суббота', 'вс': 'Воскресенье'
-                                }
-                                day_full = day_map.get(day.lower(), day)
-                                
-                                shifts.append(f"• {day_full}, {date} — {shift}")
+                                # Only include valid shifts with actual dates and hours > 0
+                                if date and hours > 0:
+                                    payment = hours * hourly_rate
+                                    total_hours += hours
+                                    total_payment += payment
+                                    
+                                    day_map = {
+                                        'пн': 'Понедельник', 'вт': 'Вторник', 'ср': 'Среда',
+                                        'чт': 'Четверг', 'пт': 'Пятница', 'сб': 'Суббота', 'вс': 'Воскресенье'
+                                    }
+                                    day_full = day_map.get(day.lower(), day)
+                                    
+                                    shifts.append(f"• {day_full}, {date} — {shift}")
                         
                         if shifts:
                             role_display = current_role.capitalize() if current_role else "Не указана"
@@ -202,7 +214,7 @@ async def get_schedule(surname: str):
                             stats = ""
                             if total_hours > 0:
                                 stats += f"📊 <b>Итоги недели:</b>\n"
-                                stats += f"⏱ {int(total_hours)} часов  |  💰 {int(total_payment):,}₽ (без учёта надбавки за стажировку)\n".replace(',', ' ')
+                                stats += f"⏱ {int(total_hours)} часов  |  💰 {int(total_payment):,}₽ (без учёта надбавки за стаж)\n".replace(',', ' ')
                             
                             shifts_text = "\n📋 <b>Смены:</b>\n"
                             for shift_item in shifts:
@@ -594,7 +606,7 @@ async def get_all_employees():
         employees = set()
         
         # Manual additions (Admins/Managers not in schedule)
-        MANUAL_EMPLOYEES = ["Лилия Смолкина"]
+        MANUAL_EMPLOYEES = ["Лилия Смолкина", "Холодный цех"]
         for manual_emp in MANUAL_EMPLOYEES:
             employees.add(manual_emp)
         

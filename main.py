@@ -1,9 +1,29 @@
 import logging
 from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, ApplicationHandlerStop
 from config import BOT_TOKEN
 from handlers.start import start_handler
 from handlers.menu import menu_message_handler
+from services.auth import is_user_admin, get_user_role
+
+async def group_restriction_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Restrict usage in groups to Admins and Managers only.
+    """
+    if update.effective_chat.type in ['group', 'supergroup']:
+        user_id = update.effective_user.id
+        
+        # 1. Check if Telegram Admin
+        if await is_user_admin(update, context):
+            return # Authorized
+            
+        # 2. Check if Manager (by surname)
+        role = await get_user_role(user_id, context)
+        if role:
+            return # Authorized
+            
+        # Not authorized - Stop processing
+        raise ApplicationHandlerStop
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -23,10 +43,16 @@ if __name__ == '__main__':
     from handlers.defrost import defrost_handler
     from handlers.wages import wages_message_handler
     from handlers.lunch import lunch_message_handler
-    from handlers.ratings import ratings_message_handler, upload_rs_handler, upload_rp_handler
+    from handlers.ratings import ratings_message_handler, upload_rs_handler, upload_rp_handler, rs_command_handler, rp_command_handler
     from handlers.schedule import schedule_callback_handler
     from handlers.group_setup import set_group_handler, prep_command_handler, who_command_handler
     from handlers.medical import medical_handlers
+    from handlers.message_handler import text_collection_handler, photo_collection_handler
+    from handlers.worker_instructions import worker_instructions_message_handler, instructions_callback
+
+    # Restriction Handler (Group -1)
+    # Restrict all commands in groups to Admins/Managers
+    application.add_handler(MessageHandler(filters.ChatType.GROUPS & filters.COMMAND, group_restriction_handler), group=-1)
 
     application.add_handler(start_handler)
     application.add_handler(registration_handler)
@@ -34,6 +60,8 @@ if __name__ == '__main__':
     application.add_handler(defrost_handler)
     application.add_handler(wages_message_handler)
     application.add_handler(lunch_message_handler)
+    application.add_handler(worker_instructions_message_handler)
+    application.add_handler(instructions_callback)
     for handler in medical_handlers:
         application.add_handler(handler)
     application.add_handler(ratings_message_handler)
@@ -50,12 +78,20 @@ if __name__ == '__main__':
     
     # Command to check who's working today
     application.add_handler(CommandHandler("who", who_command_handler))
+    
+    # Commands to show ratings in group
+    application.add_handler(rs_command_handler)
+    application.add_handler(rp_command_handler)
+    
+    # Message collection handlers (add at lower priority so other handlers process first)
+    application.add_handler(text_collection_handler, group=10)
+    application.add_handler(photo_collection_handler, group=10)
 
     print("Bot is running...")
     
     # Add scheduler job
     if application.job_queue:
-        from services.scheduler import check_shifts_and_notify, send_preps_notification, send_who_notification, send_feedback_notification
+        from services.scheduler import check_shifts_and_notify, send_preps_notification, send_who_notification, send_feedback_notification, reset_daily_data_job
         from datetime import time
         import pytz
         
@@ -71,8 +107,11 @@ if __name__ == '__main__':
         # Schedule who's working notification at 8:00
         application.job_queue.run_daily(send_who_notification, time(8, 0, tzinfo=tz))
 
-        # Schedule feedback notification at 22:50 (10:45 PM)
-        application.job_queue.run_daily(send_feedback_notification, time(22, 52, tzinfo=tz))
+        # Schedule feedback notification at 22:52 (10:52 PM)
+        application.job_queue.run_daily(send_feedback_notification, time(22, 50, tzinfo=tz))
+        
+        # Schedule daily data cleanup at midnight
+        application.job_queue.run_daily(reset_daily_data_job, time(0, 0, tzinfo=tz))
         
         print("Scheduler started.")
     else:

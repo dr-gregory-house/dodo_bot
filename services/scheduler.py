@@ -235,10 +235,18 @@ async def check_shifts_and_notify(context: ContextTypes.DEFAULT_TYPE):
 
 async def send_feedback_notification(context: ContextTypes.DEFAULT_TYPE):
     """
-    Send feedback notification to the group.
-    Scheduled to run daily at 10:30.
+    Analyze collected messages with LLM, then send feedback notification to the group.
+    If LLM analysis fails, send raw collected messages as fallback.
+    Scheduled to run daily at 22:52.
     """
     try:
+        # First, analyze the day's messages with LLM
+        from services.feedback_analyzer import analyze_feedback
+        from services.message_collector import get_daily_data
+        
+        logger.info("Starting feedback analysis with LLM...")
+        success = await analyze_feedback()
+        
         # Load group ID
         group_data = load_json(GROUP_FILE)
         group_id = group_data.get('group_id')
@@ -248,15 +256,62 @@ async def send_feedback_notification(context: ContextTypes.DEFAULT_TYPE):
             return
 
         feedback_file = 'data/feedback.text'
-        if not os.path.exists(feedback_file):
-            logger.warning(f"Feedback file not found: {feedback_file}")
-            return
+        message = None
+        
+        # Try to read existing feedback.text file (from AI or manual)
+        if os.path.exists(feedback_file):
+            try:
+                with open(feedback_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    if content.strip():  # Only use if not empty
+                        message = content
+                        logger.info("Using existing feedback.text file")
+            except Exception as e:
+                logger.error(f"Error reading feedback file: {e}")
+        
+        # If no existing feedback, create fallback message from raw data
+        if not message:
+            logger.warning("No existing feedback.text found, creating fallback message from raw data...")
             
-        with open(feedback_file, 'r', encoding='utf-8') as f:
-            message = f.read()
+            # Get collected messages
+            messages = get_daily_data()
             
+            if not messages:
+                logger.info("No messages collected today and no feedback.text. Skipping feedback notification.")
+                return
+            
+            # Create simple formatted message with raw data
+            import pytz
+            tz = pytz.timezone('Europe/Moscow')
+            today = datetime.now(tz).strftime("%d.%m.%Y")
+            
+            message = f"📋 **Обратная связь за {today}**\n\n"
+            message += "_⚠️ Автоматический анализ временно недоступен. Ниже сырые данные:_\n\n"
+            
+            text_count = 0
+            image_count = 0
+            
+            for msg in messages:
+                if msg.get('type') == 'image':
+                    image_count += 1
+                    user = f"{msg.get('first_name', '')} {msg.get('last_name', '')}".strip()
+                    caption = msg.get('caption', '')
+                    time = msg.get('timestamp', '')
+                    message += f"📷 [{user}] {time}"
+                    if caption:
+                        message += f": {caption}"
+                    message += "\n"
+                elif msg.get('text'):
+                    text_count += 1
+                    user = f"{msg.get('first_name', '')} {msg.get('last_name', '')}".strip()
+                    text = msg.get('text', '')
+                    time = msg.get('timestamp', '')
+                    message += f"💬 [{user}] {time}: {text}\n"
+            
+            message += f"\n📊 Всего: {text_count} текст. сообщ., {image_count} изображ."
+        
         if not message.strip():
-            logger.warning("Feedback file is empty")
+            logger.warning("No feedback content to send")
             return
         
         await context.bot.send_message(
@@ -268,3 +323,15 @@ async def send_feedback_notification(context: ContextTypes.DEFAULT_TYPE):
         
     except Exception as e:
         logger.error(f"Error sending feedback notification: {e}")
+
+async def reset_daily_data_job(context: ContextTypes.DEFAULT_TYPE):
+    """
+    Job to clean up old message files.
+    Scheduled to run daily at midnight.
+    """
+    try:
+        from services.message_collector import reset_daily_data
+        reset_daily_data()
+        logger.info("Daily data reset completed")
+    except Exception as e:
+        logger.error(f"Error in reset_daily_data_job: {e}")

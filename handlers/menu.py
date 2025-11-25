@@ -7,10 +7,10 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if text == "График":
         await schedule_handler(update, context)
-    elif text == "Разморозка":
-        await update.message.reply_text("Функция Разморозка в разработке.")
-    elif text == "Заготовки":
-        await update.message.reply_text("Функция Заготовки в разработке.")
+    elif text == "Главное меню" or text == "Назад":
+        from handlers.start import show_menu
+        await show_menu(update, context)
+    # Разморозка and Заготовки are handled by their respective ConversationHandlers
     # Wages is now handled by its own handler
     else:
         await update.message.reply_text("Неизвестная команда.")
