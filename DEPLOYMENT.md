@@ -159,6 +159,34 @@ Add this line:
 
 See [MAINTENANCE.md](MAINTENANCE.md) for common issues and solutions.
 
+## CI/CD Setup (GitHub Actions)
+
+The project includes GitHub Actions workflows for Continuous Integration and Deployment.
+
+### 1. Push to GitHub
+
+```bash
+git remote add origin https://github.com/yourusername/dodo_bot.git
+git push -u origin main
+```
+
+### 2. Configure Secrets
+
+Go to your GitHub Repository > Settings > Secrets and variables > Actions > New repository secret.
+
+Add the following secrets:
+
+| Secret Name | Value | Description |
+|-------------|-------|-------------|
+| `HOST` | `87.239.106.209` | Your server IP address |
+| `USERNAME` | `ubuntu` | SSH username |
+| `SSH_KEY` | `-----BEGIN RSA PRIVATE KEY-----...` | Content of your `~/.ssh/ubuntu_dodo_bot.pem` |
+
+### 3. Workflow
+
+- **CI**: Runs on every push. Checks code syntax and installs dependencies.
+- **CD**: Runs on push to `main`. Automatically connects to server and runs `./deployment/update.sh`.
+
 ## Next Steps
 
 - Configure nginx reverse proxy for HTTPS (recommended for production)
