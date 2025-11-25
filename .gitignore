@@ -22,14 +22,14 @@ service_account.json
 !package.json
 !package-lock.json
 
-# Data files (production runtime data - exclude from git)
-data/group.json
-data/medical_info.json
-data/users.json
-data/not_subscribed.json
-data/notifications.json
-data/on_shift.json
-data/ratings.json
+# Data files (production runtime data - TEMPORARILY ALLOWING for initial deployment)
+# data/group.json
+# data/medical_info.json
+# data/users.json
+# data/not_subscribed.json
+# data/notifications.json
+# data/on_shift.json
+# data/ratings.json
 
 # Keep configuration files tracked (these should update on deploy)
 # !data/preps_config.json
