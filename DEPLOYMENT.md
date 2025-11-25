@@ -181,11 +181,18 @@ Add the following secrets:
 | `HOST` | `87.239.106.209` | Your server IP address |
 | `USERNAME` | `ubuntu` | SSH username |
 | `SSH_KEY` | `-----BEGIN RSA PRIVATE KEY-----...` | Content of your `~/.ssh/ubuntu_dodo_bot.pem` |
+| `BOT_TOKEN` | `123456:ABC...` | Your Telegram Bot Token |
+| `SPREADSHEET_ID` | `1A2B3C...` | Your Google Spreadsheet ID |
+| `GEMINI_API_KEY` | `AIza...` | Your Gemini API Key |
+| `GOOGLE_CREDENTIALS` | `{ "type": "service_account"... }` | Content of `service_account.json` |
 
 ### 3. Workflow
 
 - **CI**: Runs on every push. Checks code syntax and installs dependencies.
-- **CD**: Runs on push to `main`. Automatically connects to server and runs `./deployment/update.sh`.
+- **CD**: Runs on push to `main`. 
+    1. Connects to server via SSH.
+    2. **Injects secrets** into `.env` and `service_account.json`.
+    3. Runs `./deployment/update.sh` to restart services.
 
 ## Next Steps
 

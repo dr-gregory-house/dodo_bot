@@ -19,6 +19,16 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         script: |
           cd ~/dodo_bot
+          
+          # Inject Secrets
+          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+          echo "GOOGLE_SERVICE_ACCOUNT_FILE=service_account.json" >> .env
+          echo "SPREADSHEET_ID=${{ secrets.SPREADSHEET_ID }}" >> .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > service_account.json
+          
+          # Run Update
           ./deployment/update.sh
 
   build:
