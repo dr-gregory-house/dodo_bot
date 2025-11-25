@@ -28,6 +28,11 @@ jobs:
           
           echo '${{ secrets.GOOGLE_CREDENTIALS }}' > service_account.json
           
+          # Fetch latest update.sh from GitHub
+          mkdir -p deployment
+          curl -sL https://raw.githubusercontent.com/dr-gregory-house/dodo_bot/main/deployment/update.sh -o deployment/update.sh
+          chmod +x deployment/update.sh
+          
           # Run Update
           ./deployment/update.sh
 
