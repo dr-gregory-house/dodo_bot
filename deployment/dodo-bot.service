@@ -1,0 +1,28 @@
+[Unit]
+Description=Dodo Pizza Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/dodo_bot
+Environment="PATH=/home/ubuntu/dodo_bot/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/home/ubuntu/dodo_bot/venv/bin/python /home/ubuntu/dodo_bot/main.py
+Restart=always
+RestartSec=10
+
+# Resource limits
+MemoryLimit=512M
+CPUQuota=50%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dodo-bot
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

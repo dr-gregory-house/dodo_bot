@@ -1,0 +1,28 @@
+[Unit]
+Description=Dodo Pizza Web Application
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/dodo_bot/web_app
+Environment="PATH=/home/ubuntu/dodo_bot/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/home/ubuntu/dodo_bot/venv/bin/gunicorn -w 2 -b 0.0.0.0:5001 app:app --timeout 120
+Restart=always
+RestartSec=10
+
+# Resource limits
+MemoryLimit=256M
+CPUQuota=25%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dodo-webapp
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

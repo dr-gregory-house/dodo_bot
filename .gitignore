@@ -1,0 +1,56 @@
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Google Service Account
+service_account.json
+*.json
+!data/*.json
+!package.json
+!package-lock.json
+
+# Data files (sensitive user data)
+data/*.json
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+*.csv
+schedule_dump.csv
+
+# System files
+.gemini/
+
+# Verification scripts (development only)
+verify_*.py
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
