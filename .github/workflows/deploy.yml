@@ -33,6 +33,12 @@ jobs:
           curl -sL https://raw.githubusercontent.com/dr-gregory-house/dodo_bot/main/deployment/update.sh -o deployment/update.sh
           chmod +x deployment/update.sh
           
+          # Reset git state to avoid conflicts (if git repo exists)
+          if [ -d .git ]; then
+            git fetch origin || true
+            git reset --hard origin/main || true
+          fi
+          
           # Run Update
           ./deployment/update.sh
 
