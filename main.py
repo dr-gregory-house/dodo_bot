@@ -158,8 +158,8 @@ if __name__ == '__main__':
         # Schedule who's working notification at 8:00
         application.job_queue.run_daily(send_who_notification, time(8, 0, tzinfo=tz))
 
-        # Schedule feedback notification at 22:50 (10:50 PM)
-        application.job_queue.run_daily(send_feedback_notification, time(22, 50, tzinfo=tz))
+        # Schedule feedback notification at 23:05 (11:05 PM)
+        application.job_queue.run_daily(send_feedback_notification, time(23, 5, tzinfo=tz))
         
         # Schedule daily data cleanup at midnight
         application.job_queue.run_daily(reset_daily_data_job, time(0, 0, tzinfo=tz))
