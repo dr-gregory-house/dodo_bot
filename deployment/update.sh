@@ -15,6 +15,18 @@ cd "$BOT_DIR"
 echo "Creating pre-update backup..."
 ./deployment/backup.sh
 
+# Preserve production data files
+TEMP_DATA_DIR="/tmp/dodo_bot_data_$$"
+PRODUCTION_FILES="group.json medical_info.json users.json not_subscribed.json notifications.json on_shift.json ratings.json"
+
+echo "Preserving production data files..."
+mkdir -p "$TEMP_DATA_DIR"
+for file in $PRODUCTION_FILES; do
+    if [ -f "data/$file" ]; then
+        cp "data/$file" "$TEMP_DATA_DIR/"
+    fi
+done
+
 # Check if git repository exists, initialize if needed
 if [ ! -d ".git" ]; then
     echo "Initializing git repository..."
@@ -29,6 +41,15 @@ else
     echo "Pulling latest code..."
     git pull origin main
 fi
+
+# Restore production data files
+echo "Restoring production data files..."
+for file in $PRODUCTION_FILES; do
+    if [ -f "$TEMP_DATA_DIR/$file" ]; then
+        cp "$TEMP_DATA_DIR/$file" "data/"
+    fi
+done
+rm -rf "$TEMP_DATA_DIR"
 
 # Update dependencies
 echo "Updating dependencies..."
