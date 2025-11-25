@@ -15,9 +15,20 @@ cd "$BOT_DIR"
 echo "Creating pre-update backup..."
 ./deployment/backup.sh
 
-# Pull latest code
-echo "Pulling latest code..."
-git pull origin main
+# Check if git repository exists, initialize if needed
+if [ ! -d ".git" ]; then
+    echo "Initializing git repository..."
+    git init
+    git remote add origin https://github.com/dr-gregory-house/dodo_bot.git
+    git fetch origin
+    # Reset to match remote (preserves .env and service_account.json which are in .gitignore)
+    git reset --hard origin/main
+    echo "Git repository initialized and synced."
+else
+    # Pull latest code
+    echo "Pulling latest code..."
+    git pull origin main
+fi
 
 # Update dependencies
 echo "Updating dependencies..."
