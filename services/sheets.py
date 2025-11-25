@@ -427,7 +427,9 @@ def load_preps_config():
     try:
         import json
         import os
-        config_path = 'data/preps_config.json'
+        # Use absolute path relative to this file
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        config_path = os.path.join(base_dir, 'data', 'preps_config.json')
         if not os.path.exists(config_path):
             return None
         with open(config_path, 'r', encoding='utf-8') as f:
@@ -583,7 +585,9 @@ async def get_all_employees():
         # Load config
         import json
         import os
-        config_path = 'data/employees_config.json'
+        # Use absolute path relative to this file
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        config_path = os.path.join(base_dir, 'data', 'employees_config.json')
         blacklist = []
         aliases = {}
         
