@@ -11,21 +11,18 @@ echo "Updating Dodo Bot..."
 
 cd "$BOT_DIR"
 
-# Create backup before update
-echo "Creating pre-update backup..."
-./deployment/backup.sh
+# External data directory
+EXTERNAL_DATA_DIR="$HOME/dodo_bot_data"
 
-# Preserve production data files
-TEMP_DATA_DIR="/tmp/dodo_bot_data_$$"
-PRODUCTION_FILES="group.json medical_info.json users.json not_subscribed.json notifications.json on_shift.json ratings.json"
+echo "Ensuring external data directory exists..."
+mkdir -p "$EXTERNAL_DATA_DIR"
 
-echo "Preserving production data files..."
-mkdir -p "$TEMP_DATA_DIR"
-for file in $PRODUCTION_FILES; do
-    if [ -f "data/$file" ]; then
-        cp "data/$file" "$TEMP_DATA_DIR/"
-    fi
-done
+# Copy any NEW default data files from the repo to the external dir
+# -n (no-clobber) ensures we DO NOT overwrite existing production data
+if [ -d "data" ]; then
+    echo "Populating new default data files..."
+    cp -rn data/* "$EXTERNAL_DATA_DIR/" || true
+fi
 
 # Check if git repository exists, initialize if needed
 if [ ! -d ".git" ]; then
@@ -43,14 +40,10 @@ else
     git reset --hard origin/main
 fi
 
-# Restore production data files
-echo "Restoring production data files..."
-for file in $PRODUCTION_FILES; do
-    if [ -f "$TEMP_DATA_DIR/$file" ]; then
-        cp "$TEMP_DATA_DIR/$file" "data/"
-    fi
-done
-rm -rf "$TEMP_DATA_DIR"
+# Link data directory
+echo "Linking data directory..."
+rm -rf data
+ln -s "$EXTERNAL_DATA_DIR" data
 
 # Update dependencies
 echo "Updating dependencies..."
