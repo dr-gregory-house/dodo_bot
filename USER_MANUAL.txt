@@ -1,0 +1,1882 @@
+================================================================================
+                    DODO PIZZA TELEGRAM BOT - USER MANUAL
+================================================================================
+
+Version: 1.0
+Last Updated: November 27, 2025
+Bot Name: Dodo Pizza Bot
+Purpose: Comprehensive management system for Dodo Pizza operations
+
+================================================================================
+                        PART 1: WORKER GUIDE
+================================================================================
+
+This section is for regular workers (сотрудники) who use the bot for daily 
+operations.
+
+--------------------------------------------------------------------------------
+1. GETTING STARTED
+--------------------------------------------------------------------------------
+
+1.1 FIRST TIME REGISTRATION
+---------------------------
+Step 1: Find the bot on Telegram (ask your manager for the bot username)
+Step 2: Send the command /start to the bot
+Step 3: The bot will show you a list of all employees
+Step 4: Click on YOUR surname from the list
+Step 5: You will see a confirmation message
+Step 6: The main menu will appear automatically
+
+IMPORTANT NOTES:
+- Each surname can only be registered once
+- If you see "already registered" error, contact your manager
+- If you selected wrong name, click "🔄 Это не я" to reset
+
+1.2 MAIN MENU OVERVIEW
+----------------------
+After registration, you will see the main menu with these buttons:
+
+📋 Main Menu Buttons:
+┌─────────────────────────────────────┐
+│ Разморозка          │ Заготовки     │
+├─────────────────────────────────────┤
+│ График              │ Система оплаты│
+│                     │ труда         │
+├─────────────────────────────────────┤
+│ Обеденный перерыв   │ 📊 Рейтинг    │
+├─────────────────────────────────────┤
+│ 🏥 Мед. комиссия    │ 📖 Инструкции │
+│                     │ для сотрудников│
+└─────────────────────────────────────┘
+
+Additional button below:
+🤖 Codo-бот. Актуальная информация (link to info channel)
+
+--------------------------------------------------------------------------------
+2. USING BOT FEATURES
+--------------------------------------------------------------------------------
+
+2.1 ЗАГОТОВКИ (PREPARATIONS)
+----------------------------
+Purpose: View what items need to be prepared for your shift
+
+How to use:
+1. Click "Заготовки" button
+2. Select shift type:
+   - "Утренняя смена" (Morning shift)
+   - "Вечерняя смена" (Evening shift)
+3. Bot will show you a list of items to prepare
+4. Click "🏠 Главное меню" to return
+
+What you'll see:
+- List of ingredients to prepare
+- Quantities needed
+- Items specific to the day of week
+- Items common for all days
+
+Example output:
+📝 Заготовки на утреннюю смену (Понедельник)
+
+🔹 Общие заготовки:
+   • Томаты - 5 кг
+   • Сыр - 3 кг
+   
+🔹 Заготовки на день:
+   • Ананасы - 2 кг
+
+
+2.2 РАЗМОРОЗКА (DEFROSTING)
+---------------------------
+Purpose: Check what items should be in freezer and defrosting schedules
+
+How to use:
+1. Click "Разморозка" button
+2. Choose section:
+   - "Что должно быть в морозилке на 1 этаже"
+   - "Разморозка на 4 этаже"
+   - "Разморозка на 1 этаже"
+3. View the list of items
+4. Click "Назад" to go back or "🏠 Главное меню"
+
+Sections explained:
+- 1st floor freezer: Items that must always be stocked
+- 4th floor defrost: Items being defrosted upstairs
+- 1st floor defrost: Items being defrosted downstairs
+
+
+2.3 ГРАФИК (SCHEDULE)
+----------------------
+Purpose: View your work schedule and shifts
+
+How to use:
+1. Click "График" button
+2. Select date range:
+   - "Сегодня" (Today)
+   - "Завтра" (Tomorrow)
+   - "Эта неделя" (This week)
+   - "Следующая неделя" (Next week)
+   - "Этот месяц" (This month)
+3. Bot shows schedule with:
+   - Employee names
+   - Shift times (start - end)
+   - Total hours
+   - Shift type (есть/нет)
+
+Example output:
+📅 График на Сегодня (27.11)
+
+🔹 Иванов, 10:00-18:00: Есть (8ч)
+🔹 Петров, 16:00-00:00: Есть (8ч)
+
+
+2.4 СИСТЕМА ОПЛАТЫ ТРУДА (WAGES)
+---------------------------------
+Purpose: View information about salary calculation
+
+How to use:
+1. Click "Система оплаты труда" button
+2. Read the information about:
+   - Hourly rates
+   - Bonuses
+   - Payment schedule
+   - Deductions
+3. Click "Назад" to return
+
+
+2.5 ОБЕДЕННЫЙ ПЕРЕРЫВ (LUNCH BREAK)
+------------------------------------
+Purpose: View lunch break policies and rules
+
+How to use:
+1. Click "Обеденный перерыв" button
+2. Read information about:
+   - Break duration
+   - When to take breaks
+   - Break room rules
+3. Click "Назад" to return
+
+
+2.6 📊 РЕЙТИНГ (RATINGS)
+------------------------
+Purpose: View restaurant ratings and performance photos
+
+How to use:
+1. Click "📊 Рейтинг" button
+2. View current ratings with photos:
+   - Service rating
+   - Product quality rating
+3. Photos are updated by managers
+4. Click "Назад" to return
+
+
+2.7 🏥 МЕД. КОМИССИЯ (MEDICAL COMMISSION)
+-----------------------------------------
+Purpose: View medical documentation status
+
+How to use:
+1. Click "🏥 Мед. комиссия" button
+2. Choose option:
+   - "📋 Список всех" - View all employees' medical status
+   - "⚠️ Просроченные" - View expired/expiring documents
+   - "🏠 Главное меню" - Return to main menu
+
+What you'll see:
+- Employee names with roles
+- Medical commission dates
+- Sanitary minimum dates
+- Warning icons for expired documents
+
+Status icons:
+✅ - All documents valid
+❌ - Missing or expired documents
+🔴 - Expired
+🟡 - Expiring soon
+
+NOTE: Only managers can edit medical data
+
+
+2.8 📖 ИНСТРУКЦИИ ДЛЯ СОТРУДНИКОВ (WORKER INSTRUCTIONS)
+-------------------------------------------------------
+Purpose: Step-by-step guides for opening/closing shifts
+
+How to use:
+1. Click "📖 Инструкции для сотрудников" button
+2. Select your work area:
+   - "💰 Кассовая зона" (Cashier Zone)
+   - "🍕 Пицца" (Pizza)
+3. Navigate through sub-sections
+4. Read detailed instructions
+
+Structure:
+
+💰 КАССОВАЯ ЗОНА
+├── 🖥️ Касса (Cash Register)
+│   ├── 🌅 Открытие смены (Opening)
+│   ├── ☀️ В течение дня (During day)
+│   └── 🌙 Закрытие смены (Closing)
+└── 📦 Упаковка (Packaging)
+    ├── 🌅 Открытие смены (Opening)
+    └── ☀️ В течение дня (During day)
+
+🍕 ПИЦЦА
+├── 🔥 Горячий цех (Hot Shop)
+│   ├── 🌅 Открытие смены (Opening)
+│   ├── ☀️ В течение дня (During day)
+│   └── 🌙 Закрытие смены (Closing)
+└── ❄️ Холодный цех (Cold Shop)
+    ├── 🌅 Открытие смены (Opening)
+    ├── ☀️ В течение дня (During day)
+    └── 🌙 Закрытие смены (Closing)
+
+Example - Opening Cash Register:
+1. Снять стулья со столов
+2. Включить кассы и планшет
+3. Включить телевизоры
+4. Включить свет в витрине
+5. Подготовить кофе машину к работе
+... (and more detailed steps)
+
+
+--------------------------------------------------------------------------------
+3. TIPS FOR WORKERS
+--------------------------------------------------------------------------------
+
+✓ Check preparations list at start of your shift
+✓ Review your schedule regularly
+✓ Read instructions before opening/closing
+✓ Keep medical documents up to date
+✓ If you see ⚠️ on your medical status, inform manager
+✓ Use "Назад" or "🏠 Главное меню" buttons to navigate
+✓ If bot shows "Неизвестная команда", click "🏠 Главное меню"
+
+
+--------------------------------------------------------------------------------
+4. COMMON ISSUES FOR WORKERS
+--------------------------------------------------------------------------------
+
+Problem: "I can't find my name in registration list"
+Solution: Contact your manager - you may need to be added to the system
+
+Problem: "Someone else registered with my name"
+Solution: Contact your manager to reset the registration
+
+Problem: "Bot doesn't respond to my messages"
+Solution: Use the menu buttons, not text messages
+
+Problem: "I'm stuck and can't get back to menu"
+Solution: Send /start command to restart
+
+Problem: "Schedule doesn't show my shifts"
+Solution: Check with manager - shifts are loaded from Google Sheets
+
+
+
+================================================================================
+                        PART 2: MANAGER GUIDE
+================================================================================
+
+This section is for managers (менеджеры) who have additional administrative
+functions.
+
+--------------------------------------------------------------------------------
+1. MANAGER ACCESS
+--------------------------------------------------------------------------------
+
+1.1 WHO IS A MANAGER?
+---------------------
+Managers are identified by:
+- Hardcoded surnames in system: мишра, анубхав, ахмитенко, смолкина, лемехова
+- OR employees with "manager" role in medical_info.json
+- Telegram group administrators (for group commands)
+
+1.2 MANAGER PRIVILEGES
+----------------------
+Managers can:
+✓ Edit medical commission data
+✓ Upload rating photos
+✓ Use group commands
+✓ Set notification group
+✓ View all employee information
+✓ Access all worker features
+
+
+--------------------------------------------------------------------------------
+2. MEDICAL COMMISSION MANAGEMENT
+--------------------------------------------------------------------------------
+
+2.1 VIEWING MEDICAL DATA
+------------------------
+Same as workers, but with additional "✏️ Редактировать" button
+
+2.2 EDITING MEDICAL DATA
+------------------------
+Step 1: Click "🏥 Мед. комиссия"
+Step 2: Click "✏️ Редактировать"
+Step 3: Select employee from list
+Step 4: Choose what to update:
+        - "Мед. комиссия" (Medical commission date)
+        - "Сан. минимум" (Sanitary minimum date)
+Step 5: Enter new date in format DD.MM.YYYY (e.g., 25.12.2026)
+Step 6: Bot confirms update
+Step 7: Click "❌ Отмена" at any time to cancel
+
+Date format: DD.MM.YYYY
+Example: 15.03.2026
+
+IMPORTANT:
+- Dates must be in DD.MM.YYYY format
+- Invalid dates will be rejected
+- Changes are saved immediately
+- All managers can see changes
+
+
+2.3 MONITORING EXPIRING DOCUMENTS
+----------------------------------
+Step 1: Click "🏥 Мед. комиссия"
+Step 2: Click "⚠️ Просроченные"
+Step 3: View list of:
+        - Expired documents (🔴)
+        - Documents expiring within 30 days (🟡)
+        - Missing documents (❌)
+Step 4: Take action to renew documents
+
+Alert types:
+🔴 Просрочено - Already expired
+🟡 Истекает через X дней - Expiring soon
+❌ Нет документов - No documents on file
+
+
+--------------------------------------------------------------------------------
+3. RATINGS MANAGEMENT
+--------------------------------------------------------------------------------
+
+3.1 UPLOADING SERVICE RATING (RS)
+---------------------------------
+Command: /set_rs
+
+Step 1: Send /set_rs command to bot (in private chat)
+Step 2: Bot asks for photos
+Step 3: Send 1 or 2 photos of service rating
+Step 4: Bot confirms upload
+Step 5: Photos are saved and displayed to all users
+
+Notes:
+- Can send 1 or 2 photos
+- Photos replace previous RS photos
+- All users can view via "📊 Рейтинг" button
+
+
+3.2 UPLOADING PRODUCT RATING (RP)
+----------------------------------
+Command: /set_rp
+
+Step 1: Send /set_rp command to bot (in private chat)
+Step 2: Bot asks for photos
+Step 3: Send 1 or 2 photos of product rating
+Step 4: Bot confirms upload
+Step 5: Photos are saved and displayed to all users
+
+Notes:
+- Can send 1 or 2 photos
+- Photos replace previous RP photos
+- All users can view via "📊 Рейтинг" button
+
+
+3.3 VIEWING RATINGS IN GROUP
+-----------------------------
+Commands: /rs and /rp (only for managers in group chat)
+
+/rs - Shows service rating photos in group
+/rp - Shows product rating photos in group
+
+Restrictions:
+- Only managers/admins can use these commands
+- Only works in group chats
+- Regular workers cannot trigger these commands
+
+
+--------------------------------------------------------------------------------
+4. GROUP NOTIFICATIONS SETUP
+--------------------------------------------------------------------------------
+
+4.1 SETTING UP NOTIFICATION GROUP
+----------------------------------
+Command: /set_group
+
+Step 1: Add bot to your Telegram group
+Step 2: Make bot an administrator (optional but recommended)
+Step 3: Send /set_group command IN THE GROUP
+Step 4: Bot confirms group is linked
+Step 5: Notifications will now be sent to this group
+
+IMPORTANT:
+- Command must be sent IN the group, not private chat
+- Only one group can be active at a time
+- New /set_group command will override previous group
+
+
+4.2 AUTOMATIC NOTIFICATIONS
+----------------------------
+Once group is set up, bot automatically sends:
+
+🕐 8:00 AM (Moscow time) - "Who's Working Today"
+   - List of employees on shift today
+   - Shift times
+   - Total hours
+
+🕐 8:55 AM (Moscow time) - Morning Preparations
+   - Items to prepare for morning shift
+   - Day-specific items
+   - Common items
+
+🕐 4:55 PM (Moscow time) - Evening Preparations
+   - Items to prepare for evening shift
+   - Day-specific items
+   - Common items
+
+🕐 11:05 PM (Moscow time) - Daily Feedback Summary
+   - AI-analyzed summary of messages in group
+   - Customer feedback insights
+   - Issues mentioned
+   - Positive highlights
+
+🕐 1 hour before shift - Individual Shift Reminders
+   - Sent to each employee privately
+   - Reminds them of upcoming shift
+   - Shows shift time and duration
+
+
+4.3 MANUAL GROUP COMMANDS
+--------------------------
+
+/prep - Show preparations for next shift
+Usage: Send /prep in group
+Output: 
+- Before 4 PM: Shows evening prep list
+- After 4 PM: Shows tomorrow morning prep list
+
+/who - Show who's working today
+Usage: Send /who in group
+Output: List of employees on shift today with times
+
+/rs - Show service rating
+Usage: Send /rs in group (managers only)
+Output: Current service rating photos
+
+/rp - Show product rating
+Usage: Send /rp in group (managers only)
+Output: Current product rating photos
+
+
+--------------------------------------------------------------------------------
+5. FEEDBACK MONITORING
+--------------------------------------------------------------------------------
+
+5.1 HOW FEEDBACK COLLECTION WORKS
+----------------------------------
+- Bot monitors all messages in the group chat
+- Collects text messages and photos
+- At 11:05 PM, sends AI-analyzed summary
+- Uses Gemini AI to analyze:
+  * Customer complaints
+  * Quality issues
+  * Service problems
+  * Positive feedback
+  * Operational issues
+
+5.2 VIEWING FEEDBACK SUMMARY
+-----------------------------
+- Automatically sent at 11:05 PM daily
+- Contains:
+  * Summary of key issues
+  * Sentiment analysis
+  * Action items
+  * Photo analysis (if images were sent)
+
+5.3 DAILY DATA RESET
+---------------------
+- Feedback data resets at midnight (Moscow time)
+- Fresh collection starts each day
+- Previous day's data is not stored long-term
+
+
+--------------------------------------------------------------------------------
+6. DATA MANAGEMENT
+--------------------------------------------------------------------------------
+
+6.1 GOOGLE SHEETS INTEGRATION
+------------------------------
+Bot reads data from Google Sheets:
+
+Sheet: "График" (Schedule)
+- Employee schedules
+- Shift times
+- Work hours
+- Used for: Schedule display, shift reminders, "who's working"
+
+Sheet: "Заготовки" (Preparations)
+- Daily prep items
+- Morning/evening specific items
+- Day-of-week specific items
+- Used for: Prep lists, notifications
+
+Sheet: "Разморозка" (Defrosting)
+- Freezer inventory
+- Defrosting schedules
+- Floor-specific items
+- Used for: Defrost menu
+
+Sheet: "Зарплата" (Wages)
+- Salary information
+- Payment policies
+- Used for: Wages display
+
+Sheet: "Обед" (Lunch)
+- Lunch break policies
+- Used for: Lunch info display
+
+IMPORTANT FOR MANAGERS:
+- Changes in Google Sheets are reflected immediately
+- Bot reads sheets in real-time
+- No need to restart bot after sheet updates
+- Ensure proper formatting in sheets
+
+
+6.2 LOCAL DATA FILES
+--------------------
+Location: /home/ubuntu/dodo_bot/data/
+
+users.json - User registrations
+- Maps Telegram user IDs to surnames
+- Created when workers register
+- Can be manually edited if needed
+
+group.json - Notification group
+- Stores group chat ID
+- Created by /set_group command
+- Contains: {"group_id": "123456789"}
+
+medical_info.json - Medical records
+- Employee medical commission dates
+- Sanitary minimum dates
+- Employee roles
+- Edited via bot or manually
+
+ratings_rs.json - Service rating photos
+- File IDs of uploaded RS photos
+- Updated by /set_rs command
+
+ratings_rp.json - Product rating photos
+- File IDs of uploaded RP photos
+- Updated by /set_rp command
+
+daily_messages.json - Feedback collection
+- Text messages from group
+- Resets daily at midnight
+
+daily_photos.json - Photo collection
+- Photo file IDs from group
+- Resets daily at midnight
+
+
+--------------------------------------------------------------------------------
+7. MANAGER BEST PRACTICES
+--------------------------------------------------------------------------------
+
+✓ Update medical dates at least 30 days before expiration
+✓ Check "⚠️ Просроченные" weekly
+✓ Upload new rating photos when ratings change
+✓ Monitor feedback summaries daily
+✓ Verify group notifications are working
+✓ Keep Google Sheets updated and properly formatted
+✓ Respond to workers' questions about bot usage
+✓ Ensure all workers are registered correctly
+✓ Review shift reminders are being sent
+✓ Check bot logs if issues occur
+
+
+--------------------------------------------------------------------------------
+8. TROUBLESHOOTING FOR MANAGERS
+--------------------------------------------------------------------------------
+
+Problem: Notifications not being sent to group
+Solution: 
+- Verify group is set with /set_group
+- Check data/group.json file exists
+- Ensure bot is still in the group
+- Check bot logs for errors
+
+Problem: Medical data not updating
+Solution:
+- Verify you have manager permissions
+- Check date format is DD.MM.YYYY
+- Ensure data/medical_info.json is writable
+- Try restarting bot if persistent
+
+Problem: Rating photos not uploading
+Solution:
+- Send photos one at a time or both together
+- Ensure photos are not too large
+- Check data/ratings_rs.json or ratings_rp.json
+- Verify file permissions
+
+Problem: Schedule not showing correct data
+Solution:
+- Check Google Sheets "График" tab
+- Verify date format in sheets (DD.MM)
+- Ensure SPREADSHEET_ID is correct in .env
+- Check service_account.json permissions
+
+Problem: Preparations list is empty
+Solution:
+- Check Google Sheets "Заготовки" tab
+- Verify column headers match expected format
+- Check for proper day names (Понедельник, etc.)
+- Ensure rows have data
+
+Problem: Feedback summary not working
+Solution:
+- Verify GEMINI_API_KEY in .env
+- Check if messages are being collected
+- Review bot logs for API errors
+- Ensure group is set up correctly
+
+
+
+================================================================================
+                    PART 3: TECHNICAL DOCUMENTATION
+================================================================================
+
+This section is for developers who maintain, modify, or deploy the bot.
+
+--------------------------------------------------------------------------------
+1. SYSTEM ARCHITECTURE
+--------------------------------------------------------------------------------
+
+1.1 TECHNOLOGY STACK
+--------------------
+- Language: Python 3.10+
+- Framework: python-telegram-bot (v20+)
+- Web Framework: Flask + Gunicorn
+- Database: Google Sheets (via gspread)
+- AI: Google Gemini API
+- Deployment: Ubuntu 24.04, systemd
+- Process Manager: systemd services
+
+1.2 PROJECT STRUCTURE
+---------------------
+dodo_bot/
+├── main.py                      # Bot entry point, handler registration
+├── config.py                    # Environment variable loader
+├── requirements.txt             # Python dependencies
+├── .env                         # Environment variables (not in git)
+├── service_account.json         # Google credentials (not in git)
+│
+├── handlers/                    # Telegram command handlers
+│   ├── start.py                # Registration, /start command
+│   ├── menu.py                 # Main menu routing
+│   ├── preps.py                # Preparations conversation
+│   ├── defrost.py              # Defrosting conversation
+│   ├── schedule.py             # Schedule display
+│   ├── medical.py              # Medical commission management
+│   ├── ratings.py              # Rating photo upload/display
+│   ├── wages.py                # Wages information
+│   ├── lunch.py                # Lunch break information
+│   ├── worker_instructions.py  # Worker instruction menus
+│   ├── group_setup.py          # Group commands (/set_group, /prep, /who)
+│   └── message_handler.py      # Message/photo collection for feedback
+│
+├── services/                    # Business logic layer
+│   ├── sheets.py               # Google Sheets integration
+│   ├── scheduler.py            # Job scheduler for notifications
+│   ├── auth.py                 # Authentication and authorization
+│   ├── medical_service.py      # Medical data management
+│   ├── feedback_analyzer.py    # AI feedback analysis
+│   ├── message_collector.py    # Message collection service
+│   └── sheet_manager.py        # Sheet data caching
+│
+├── web_app/                     # Flask web application
+│   ├── app.py                  # Web app entry point
+│   ├── templates/              # HTML templates
+│   │   └── preps.html         # Preparations display page
+│   └── static/                 # CSS, JS, images
+│
+├── data/                        # JSON data files (runtime)
+│   ├── users.json              # User registrations
+│   ├── group.json              # Notification group
+│   ├── medical_info.json       # Medical records
+│   ├── ratings_rs.json         # Service rating photos
+│   ├── ratings_rp.json         # Product rating photos
+│   ├── daily_messages.json     # Daily message collection
+│   └── daily_photos.json       # Daily photo collection
+│
+├── logs/                        # Application logs
+│   ├── dodo_bot.log            # Main bot log (rotated)
+│   ├── dodo_bot_errors.log     # Error log (rotated)
+│   └── webapp.log              # Web app log
+│
+├── deployment/                  # Deployment files
+│   ├── dodo-bot.service        # Systemd service for bot
+│   ├── dodo-webapp.service     # Systemd service for web app
+│   ├── setup.sh                # Initial setup script
+│   ├── update.sh               # Update script
+│   ├── backup.sh               # Backup script
+│   └── start.sh                # Manual start script
+│
+├── .github/workflows/           # CI/CD pipelines
+│   └── deploy.yml              # GitHub Actions deployment
+│
+└── docs/                        # Documentation
+    ├── README.md               # Project overview
+    ├── DEPLOYMENT.md           # Deployment guide
+    ├── MAINTENANCE.md          # Maintenance guide
+    └── USER_MANUAL.txt         # This file
+
+
+1.3 DATA FLOW
+-------------
+
+User Input → Telegram API → Bot Handlers → Services → Data Sources
+                                                      ↓
+                                          ┌───────────┴────────────┐
+                                          │                        │
+                                    Google Sheets            JSON Files
+                                    (Read-only)              (Read/Write)
+                                          │                        │
+                                          └───────────┬────────────┘
+                                                      ↓
+                                              Response to User
+
+
+1.4 AUTHENTICATION FLOW
+-----------------------
+
+1. User sends /start
+2. Bot checks data/users.json for user_id
+3. If not found:
+   a. Fetch employee list from Google Sheets
+   b. Display inline keyboard with names
+   c. User selects name
+   d. Save user_id → surname mapping
+4. If found:
+   a. Show welcome message with surname
+   b. Display main menu
+
+Manager Authorization:
+1. Check if surname in ADMIN_SURNAMES list
+2. OR check if role == "manager" in medical_info.json
+3. OR check if Telegram group admin (for group commands)
+
+
+--------------------------------------------------------------------------------
+2. CORE COMPONENTS
+--------------------------------------------------------------------------------
+
+2.1 MAIN.PY - APPLICATION ENTRY POINT
+--------------------------------------
+
+Purpose: Initialize bot, register handlers, start polling
+
+Key Functions:
+- signal_handler(): Graceful shutdown on SIGTERM/SIGINT
+- Logging configuration with rotation
+- Handler registration in specific order
+- Job queue initialization for scheduled tasks
+
+Handler Registration Order:
+1. Group restriction handler (group=-1, highest priority)
+2. Start and registration handlers
+3. Feature handlers (preps, defrost, wages, etc.)
+4. Medical conversation handler
+5. Ratings handlers
+6. Schedule callback handler
+7. Menu message handler (catch-all)
+8. Group command handlers (/set_group, /prep, /who, /rs, /rp)
+9. Message collection handlers (group=10, lowest priority)
+
+Scheduled Jobs:
+- check_shifts_and_notify: Every 5 minutes
+- send_preps_notification: 8:55 AM, 4:55 PM (Moscow)
+- send_who_notification: 8:00 AM (Moscow)
+- send_feedback_notification: 11:05 PM (Moscow)
+- reset_daily_data_job: Midnight (Moscow)
+
+Environment Variables Required:
+- BOT_TOKEN: Telegram bot token
+- GOOGLE_SERVICE_ACCOUNT_FILE: Path to service account JSON
+- SPREADSHEET_ID: Google Sheets ID
+- GEMINI_API_KEY: Gemini API key
+
+
+2.2 HANDLERS/ - TELEGRAM COMMAND HANDLERS
+------------------------------------------
+
+start.py
+--------
+Exports: start_handler, registration_handler
+
+Functions:
+- start(): Entry point, shows employee list or menu
+- button_handler(): Handles registration callbacks
+- show_menu(): Displays main menu with keyboard
+
+Data Files:
+- Reads/Writes: data/users.json
+
+User Data Structure:
+{
+  "user_id": "surname"
+}
+
+
+menu.py
+-------
+Exports: menu_message_handler
+
+Functions:
+- menu_handler(): Routes menu button presses
+
+Routing:
+- "График" → schedule_handler
+- "Главное меню" / "Назад" → show_menu
+- Other buttons handled by respective ConversationHandlers
+
+
+preps.py
+--------
+Exports: preps_handler (ConversationHandler)
+
+States:
+- SHIFT_SELECTION: Choose morning or evening
+
+Functions:
+- preps_menu(): Entry point
+- shift_selection(): Handle shift choice
+- cancel(): Exit conversation
+
+Data Source: Google Sheets "Заготовки" tab
+
+
+defrost.py
+----------
+Exports: defrost_handler (ConversationHandler)
+
+States:
+- SECTION_SELECTION: Choose freezer section
+
+Functions:
+- defrost_menu(): Entry point
+- section_selection(): Handle section choice
+- cancel(): Exit conversation
+
+Data Source: Google Sheets "Разморозка" tab
+
+
+schedule.py
+-----------
+Exports: schedule_callback_handler
+
+Functions:
+- schedule_handler(): Entry point, show date range buttons
+- schedule_button_handler(): Handle date range selection
+- Helper functions for date calculations
+
+Data Source: Google Sheets "График" tab
+
+
+medical.py
+----------
+Exports: medical_handlers (list)
+
+Components:
+- medical_menu_handler: Entry point
+- medical_conv_handler: Edit conversation
+- medical_button_handler: View callbacks
+
+States:
+- SELECT_EMPLOYEE: Choose employee to edit
+- SELECT_TYPE: Choose med commission or san minimum
+- INPUT_DATE: Enter new date
+
+Functions:
+- medical_menu(): Show main medical menu
+- medical_button_handler(): Handle view all/expiring
+- start_edit(): Begin edit flow (manager only)
+- select_employee(): Choose employee
+- select_type(): Choose data type
+- input_date(): Validate and save date
+- cancel_date_input(): Cancel during date input
+
+Authorization:
+- ADMIN_SURNAMES: Hardcoded manager surnames
+- is_manager(): Check role in medical_info.json
+
+Data Files:
+- Reads/Writes: data/medical_info.json
+
+Medical Info Structure:
+{
+  "employees": [
+    {
+      "name": "Surname",
+      "role": "manager|pizzamaker|cashier|courier|universal|mentor|instructor|trainee",
+      "med_commission_date": "DD.MM.YYYY",
+      "san_min_date": "DD.MM.YYYY",
+      "status": "missing_docs" (optional)
+    }
+  ]
+}
+
+
+ratings.py
+----------
+Exports: 
+- ratings_message_handler
+- upload_rs_handler (ConversationHandler)
+- upload_rp_handler (ConversationHandler)
+- rs_command_handler
+- rp_command_handler
+
+States (for upload):
+- UPLOAD_PHOTOS: Receive photos
+
+Functions:
+- ratings_menu(): Show current ratings
+- start_upload_rs/rp(): Begin upload (manager only)
+- receive_photos_rs/rp(): Save photos
+- rs_command/rp_command(): Show ratings in group (manager only)
+
+Data Files:
+- Reads/Writes: data/ratings_rs.json, data/ratings_rp.json
+
+Ratings Structure:
+{
+  "photos": ["file_id_1", "file_id_2"]
+}
+
+
+worker_instructions.py
+----------------------
+Exports:
+- worker_instructions_message_handler
+- instructions_callback
+
+Functions:
+- worker_instructions_handler(): Entry point
+- instructions_callback_handler(): Navigate instruction tree
+- edit_menu(): Helper to update menu
+- show_content(): Helper to show content with back button
+
+Menu Structure:
+Root
+├── Кассовая зона
+│   ├── Касса
+│   │   ├── Открытие смены
+│   │   ├── В течение дня
+│   │   └── Закрытие смены
+│   └── Упаковка
+│       ├── Открытие смены
+│       └── В течение дня
+└── Пицца
+    ├── Горячий цех
+    │   ├── Открытие смены
+    │   ├── В течение дня
+    │   └── Закрытие смены
+    └── Холодный цех
+        ├── Открытие смены
+        ├── В течение дня
+        └── Закрытие смены
+
+
+group_setup.py
+--------------
+Exports: 
+- set_group_handler (CommandHandler)
+- prep_command_handler (CommandHandler)
+- who_command_handler (CommandHandler)
+
+Functions:
+- set_group_handler(): Save group ID for notifications
+- prep_command_handler(): Show next shift preps
+- who_command_handler(): Show today's workers
+
+Data Files:
+- Writes: data/group.json
+
+Group Structure:
+{
+  "group_id": "chat_id"
+}
+
+
+message_handler.py
+------------------
+Exports:
+- text_collection_handler
+- photo_collection_handler
+
+Functions:
+- collect_text_message(): Save text messages from group
+- collect_photo_message(): Save photo file IDs from group
+
+Data Files:
+- Writes: data/daily_messages.json, data/daily_photos.json
+
+Collection runs only in group chats, not private chats.
+
+
+2.3 SERVICES/ - BUSINESS LOGIC
+-------------------------------
+
+sheets.py
+---------
+Purpose: Google Sheets integration
+
+Key Functions:
+- get_all_employees(): Fetch employee list from "График"
+- get_schedule(date_range): Fetch schedule for date range
+- get_preps(day_index, is_morning): Fetch prep list
+- get_defrost_items(section): Fetch defrost items
+- get_wages_info(): Fetch wages information
+- get_lunch_info(): Fetch lunch information
+- get_who_on_shift(date_str): Fetch today's workers
+
+Implementation:
+- Uses gspread library
+- Service account authentication
+- Caches worksheet objects
+- Handles API rate limits
+- Parses sheet data into structured format
+
+Sheet Format Requirements:
+- "График": Columns for date, employee, shift times
+- "Заготовки": Columns for shift type, day, items
+- "Разморозка": Sections for different floors
+- "Зарплата": Formatted text
+- "Обед": Formatted text
+
+
+scheduler.py
+------------
+Purpose: Scheduled notification jobs
+
+Key Functions:
+- check_shifts_and_notify(context): Check for upcoming shifts, send reminders
+- send_preps_notification(context): Send prep list to group
+- send_who_notification(context): Send today's workers to group
+- send_feedback_notification(context): Send AI-analyzed feedback summary
+- reset_daily_data_job(context): Clear daily message/photo collections
+
+Implementation:
+- Uses python-telegram-bot JobQueue
+- Runs in separate threads
+- Reads group_id from data/group.json
+- Sends messages to group chat
+- Handles errors gracefully
+
+Notification Logic:
+- Shift reminders: 1 hour before shift start
+- Preps: Determined by time of day (morning/evening)
+- Who's working: Based on today's date
+- Feedback: Aggregates all day's messages
+
+
+auth.py
+-------
+Purpose: Authentication and authorization
+
+Key Functions:
+- is_user_admin(update, context): Check if Telegram group admin
+- get_user_role(user_id, context): Get user role from medical_info.json
+- is_manager(surname): Check if surname is manager
+
+Used by:
+- main.py: Group restriction handler
+- medical.py: Edit permissions
+- ratings.py: Upload permissions
+- Group commands: Command restrictions
+
+
+medical_service.py
+------------------
+Purpose: Medical data management
+
+Key Functions:
+- load_medical_data(): Read medical_info.json
+- save_medical_data(data): Write medical_info.json
+- update_employee_medical_info(name, med_date, san_date): Update dates
+- get_employee_status(name): Get employee medical status
+- get_all_medical_issues(): Get list of expired/expiring documents
+- is_manager(surname): Check manager role
+
+Expiration Logic:
+- Expired: Date is in the past
+- Expiring soon: Date is within 30 days
+- Missing: No date or status == "missing_docs"
+
+
+feedback_analyzer.py
+--------------------
+Purpose: AI-powered feedback analysis
+
+Key Functions:
+- analyze_feedback(messages, photos): Send to Gemini API for analysis
+
+Implementation:
+- Uses Google Gemini API
+- Sends text messages and photo file IDs
+- Receives structured analysis
+- Handles API errors
+
+Analysis includes:
+- Summary of key issues
+- Customer complaints
+- Quality concerns
+- Service problems
+- Positive highlights
+- Action items
+
+
+message_collector.py
+--------------------
+Purpose: Collect and manage daily messages/photos
+
+Key Functions:
+- save_message(user, text): Save text message
+- save_photo(user, file_id): Save photo file ID
+- get_all_messages(): Retrieve all messages
+- get_all_photos(): Retrieve all photo file IDs
+- reset_daily_data(): Clear collections
+
+Data Files:
+- data/daily_messages.json
+- data/daily_photos.json
+
+Structure:
+{
+  "messages": [
+    {"user": "Name", "text": "Message", "timestamp": "ISO8601"}
+  ]
+}
+
+
+sheet_manager.py
+----------------
+Purpose: Caching layer for Google Sheets
+
+Key Functions:
+- get_cached_sheet(sheet_name): Get worksheet with caching
+- invalidate_cache(): Clear cache
+
+Implementation:
+- Caches worksheet objects
+- Reduces API calls
+- TTL-based expiration
+
+
+2.4 WEB_APP/ - FLASK WEB APPLICATION
+-------------------------------------
+
+app.py
+------
+Purpose: Web interface for viewing preparations
+
+Endpoints:
+- GET /: Show prep list for current shift
+- GET /health: Health check endpoint
+
+Implementation:
+- Flask application
+- Reads from Google Sheets
+- Responsive HTML template
+- Auto-refreshes data
+
+Deployment:
+- Runs on port 5001
+- Served by Gunicorn
+- Systemd service: dodo-webapp.service
+
+Usage:
+- Tablet display in kitchen
+- Shows current shift preps
+- No authentication required (internal network)
+
+
+templates/preps.html
+--------------------
+Purpose: Display preparations in web format
+
+Features:
+- Responsive design
+- Large, readable text
+- Color-coded sections
+- Auto-refresh option
+- Mobile-friendly
+
+
+--------------------------------------------------------------------------------
+3. DEPLOYMENT
+--------------------------------------------------------------------------------
+
+3.1 SYSTEM REQUIREMENTS
+-----------------------
+- OS: Ubuntu 24.04 LTS
+- Python: 3.10+
+- RAM: 512MB minimum, 1GB recommended
+- Disk: 1GB minimum
+- Network: Outbound HTTPS (443) for APIs
+
+3.2 INSTALLATION PROCESS
+------------------------
+
+Step 1: Clone Repository
+git clone <repo-url> /home/ubuntu/dodo_bot
+cd /home/ubuntu/dodo_bot
+
+Step 2: Create Virtual Environment
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+Step 3: Configure Environment
+Create .env file:
+BOT_TOKEN=your_bot_token
+GOOGLE_SERVICE_ACCOUNT_FILE=service_account.json
+SPREADSHEET_ID=your_spreadsheet_id
+GEMINI_API_KEY=your_gemini_key
+
+Copy service_account.json to project root
+
+Step 4: Create Directories
+mkdir -p logs data
+
+Step 5: Install Systemd Services
+sudo cp deployment/dodo-bot.service /etc/systemd/system/
+sudo cp deployment/dodo-webapp.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable dodo-bot dodo-webapp
+sudo systemctl start dodo-bot dodo-webapp
+
+Step 6: Verify
+sudo systemctl status dodo-bot
+sudo systemctl status dodo-webapp
+curl http://localhost:5001/health
+
+
+3.3 SYSTEMD SERVICES
+--------------------
+
+dodo-bot.service
+----------------
+[Unit]
+Description=Dodo Pizza Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/dodo_bot
+Environment="PATH=/home/ubuntu/dodo_bot/venv/bin"
+ExecStart=/home/ubuntu/dodo_bot/venv/bin/python main.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+
+dodo-webapp.service
+-------------------
+[Unit]
+Description=Dodo Pizza Web App
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/dodo_bot/web_app
+Environment="PATH=/home/ubuntu/dodo_bot/venv/bin"
+ExecStart=/home/ubuntu/dodo_bot/venv/bin/gunicorn -w 2 -b 0.0.0.0:5001 app:app
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+
+3.4 LOGGING
+-----------
+
+Log Files:
+- /home/ubuntu/dodo_bot/logs/dodo_bot.log - Main bot log
+- /home/ubuntu/dodo_bot/logs/dodo_bot_errors.log - Error log
+- /home/ubuntu/dodo_bot/logs/webapp.log - Web app log
+
+Rotation:
+- Max size: 10MB per file
+- Backups: 5 files kept
+- Automatic rotation by Python logging
+
+Systemd Logs:
+- sudo journalctl -u dodo-bot -f
+- sudo journalctl -u dodo-webapp -f
+
+
+3.5 BACKUP STRATEGY
+-------------------
+
+Automated Backup (deployment/backup.sh):
+- Runs daily at 3 AM (via cron)
+- Backs up:
+  * data/ directory (all JSON files)
+  * .env file
+  * service_account.json
+  * Recent logs (last 7 days)
+- Stored in: /home/ubuntu/dodo_bot_backups/
+- Filename: backup_YYYYMMDD_HHMMSS.tar.gz
+
+Cron Entry:
+0 3 * * * /home/ubuntu/dodo_bot/deployment/backup.sh >> /home/ubuntu/dodo_bot/logs/backup.log 2>&1
+
+Restore Process:
+1. Stop services
+2. Extract backup
+3. Copy files to project directory
+4. Restart services
+
+
+3.6 UPDATE PROCESS
+------------------
+
+Automated Update (deployment/update.sh):
+1. Create backup
+2. Pull latest code from git
+3. Activate virtual environment
+4. Update dependencies
+5. Restart services
+6. Show status
+
+Manual Update:
+./deployment/backup.sh
+git pull origin main
+source venv/bin/activate
+pip install -r requirements.txt --upgrade
+sudo systemctl restart dodo-bot dodo-webapp
+
+
+3.7 CI/CD PIPELINE
+------------------
+
+GitHub Actions (.github/workflows/deploy.yml):
+
+Triggers:
+- Push to main branch
+
+Steps:
+1. Checkout code
+2. Connect to server via SSH
+3. Pull latest code
+4. Create .env from secrets
+5. Create service_account.json from secrets
+6. Run update.sh
+7. Verify services are running
+
+Required Secrets:
+- HOST: Server IP
+- USERNAME: SSH username
+- SSH_KEY: Private key
+- BOT_TOKEN: Telegram bot token
+- SPREADSHEET_ID: Google Sheets ID
+- GEMINI_API_KEY: Gemini API key
+- GOOGLE_CREDENTIALS: Service account JSON
+
+
+--------------------------------------------------------------------------------
+4. DEVELOPMENT GUIDE
+--------------------------------------------------------------------------------
+
+4.1 SETTING UP DEVELOPMENT ENVIRONMENT
+---------------------------------------
+
+1. Clone repository
+2. Create virtual environment
+3. Install dependencies
+4. Create .env with test credentials
+5. Run locally: python main.py
+
+Testing:
+- Create test Telegram bot
+- Use test Google Sheet
+- Test Gemini API separately
+
+
+4.2 CODE STRUCTURE GUIDELINES
+------------------------------
+
+Handlers:
+- One file per feature
+- Export handler objects (not functions)
+- Use ConversationHandler for multi-step flows
+- Handle errors gracefully
+- Always provide "back" or "cancel" options
+
+Services:
+- Pure business logic
+- No direct Telegram API calls
+- Return data, not messages
+- Handle external API errors
+- Use caching where appropriate
+
+Data Files:
+- JSON format
+- UTF-8 encoding
+- Atomic writes (write to temp, then rename)
+- Validate structure on read
+
+
+4.3 ADDING NEW FEATURES
+-----------------------
+
+Example: Adding a new menu item
+
+Step 1: Create handler file
+handlers/new_feature.py
+
+Step 2: Implement handler functions
+async def new_feature_handler(update, context):
+    # Implementation
+    pass
+
+Step 3: Export handler
+new_feature_handler = MessageHandler(filters.Regex("^New Feature$"), new_feature_handler)
+
+Step 4: Register in main.py
+from handlers.new_feature import new_feature_handler
+application.add_handler(new_feature_handler)
+
+Step 5: Add button to menu
+In handlers/start.py, add button to keyboard:
+["New Feature", "Other Button"]
+
+
+4.4 MODIFYING GOOGLE SHEETS INTEGRATION
+----------------------------------------
+
+Adding new sheet:
+1. Add sheet name to sheets.py
+2. Create function to read sheet
+3. Parse data into structured format
+4. Handle missing/malformed data
+5. Cache if frequently accessed
+
+Example:
+async def get_new_data():
+    gc = get_sheets_client()
+    sheet = gc.open_by_key(SPREADSHEET_ID)
+    worksheet = sheet.worksheet("NewSheet")
+    data = worksheet.get_all_records()
+    return process_data(data)
+
+
+4.5 MODIFYING NOTIFICATIONS
+----------------------------
+
+Adding new scheduled notification:
+1. Create function in services/scheduler.py
+2. Add job in main.py:
+   application.job_queue.run_daily(new_notification, time(hour, minute, tzinfo=tz))
+
+Changing notification time:
+- Edit time() in main.py job registration
+- Restart bot
+
+
+4.6 ERROR HANDLING PATTERNS
+----------------------------
+
+Try-Except in Handlers:
+try:
+    # Operation
+    await update.message.reply_text("Success")
+except Exception as e:
+    logger.error(f"Error: {e}", exc_info=True)
+    await update.message.reply_text("❌ Ошибка. Попробуйте позже.")
+
+Callback Query Error Handling:
+try:
+    await query.answer()
+except Exception as e:
+    logger.warning(f"Failed to answer callback: {e}")
+    # Continue processing
+
+API Error Handling:
+try:
+    data = await external_api_call()
+except APIError as e:
+    logger.error(f"API error: {e}")
+    return default_value
+
+
+4.7 TESTING GUIDELINES
+-----------------------
+
+Unit Tests:
+- Test service functions independently
+- Mock external APIs
+- Test edge cases
+
+Integration Tests:
+- Test handler flows
+- Use test bot and test group
+- Verify data persistence
+
+Manual Testing Checklist:
+□ Registration flow
+□ All menu buttons
+□ Each conversation flow
+□ Group commands
+□ Scheduled notifications
+□ Error scenarios
+□ Permission checks
+
+
+--------------------------------------------------------------------------------
+5. TROUBLESHOOTING
+--------------------------------------------------------------------------------
+
+5.1 COMMON ISSUES
+-----------------
+
+Bot Not Responding:
+- Check systemctl status dodo-bot
+- Check logs: sudo journalctl -u dodo-bot -n 100
+- Verify BOT_TOKEN in .env
+- Check network connectivity
+
+Notifications Not Sent:
+- Verify group.json exists and has correct group_id
+- Check scheduler logs: grep "Scheduler" logs/dodo_bot.log
+- Verify timezone is Europe/Moscow
+- Check job_queue is initialized
+
+Google Sheets Errors:
+- Verify service_account.json exists
+- Check SPREADSHEET_ID in .env
+- Verify service account has access to sheet
+- Check API quotas
+
+Gemini API Errors:
+- Verify GEMINI_API_KEY in .env
+- Check API quotas and billing
+- Review error logs
+
+Web App Not Loading:
+- Check systemctl status dodo-webapp
+- Verify port 5001 is not in use
+- Check webapp logs: sudo journalctl -u dodo-webapp -n 100
+- Test health endpoint: curl http://localhost:5001/health
+
+
+5.2 DEBUGGING TECHNIQUES
+------------------------
+
+Enable Debug Logging:
+In main.py, change:
+logger.setLevel(logging.DEBUG)
+
+View Real-time Logs:
+sudo journalctl -u dodo-bot -f
+
+Test Specific Handler:
+Send command to bot and watch logs
+
+Check Data Files:
+cat data/users.json | jq
+cat data/group.json | jq
+cat data/medical_info.json | jq
+
+Test Google Sheets Connection:
+python3
+>>> from services.sheets import get_all_employees
+>>> import asyncio
+>>> asyncio.run(get_all_employees())
+
+
+5.3 PERFORMANCE OPTIMIZATION
+-----------------------------
+
+Reduce API Calls:
+- Use sheet_manager.py caching
+- Batch requests where possible
+- Cache frequently accessed data
+
+Memory Management:
+- Monitor with: systemctl status dodo-bot | grep Memory
+- Restart services periodically if needed
+- Check for memory leaks in logs
+
+Response Time:
+- Use async/await properly
+- Avoid blocking operations
+- Defer heavy processing to background jobs
+
+
+--------------------------------------------------------------------------------
+6. SECURITY CONSIDERATIONS
+--------------------------------------------------------------------------------
+
+6.1 SENSITIVE DATA
+------------------
+
+Environment Variables:
+- Never commit .env to git
+- Use .env.example as template
+- Restrict file permissions: chmod 600 .env
+
+Service Account:
+- Never commit service_account.json
+- Restrict file permissions: chmod 600 service_account.json
+- Rotate keys periodically
+
+User Data:
+- data/users.json contains user IDs (sensitive)
+- Backup securely
+- Don't expose in logs
+
+
+6.2 ACCESS CONTROL
+------------------
+
+Manager Permissions:
+- Hardcoded surnames in medical.py
+- Role-based in medical_info.json
+- Telegram group admin status
+
+Group Commands:
+- Restricted to admins/managers
+- group_restriction_handler in main.py
+- Prevents unauthorized access
+
+
+6.3 INPUT VALIDATION
+--------------------
+
+Date Validation:
+- Format: DD.MM.YYYY
+- Validated in medical.py input_date()
+- Rejects invalid dates
+
+Callback Data:
+- Validated in handlers
+- Pattern matching in CallbackQueryHandler
+- Prevents injection attacks
+
+
+6.4 API SECURITY
+----------------
+
+Telegram Bot Token:
+- Keep secret
+- Rotate if compromised
+- Use environment variable
+
+Google Service Account:
+- Minimal permissions (read/write specific sheet)
+- Don't share credentials
+- Monitor usage
+
+Gemini API Key:
+- Keep secret
+- Monitor usage and costs
+- Set usage limits
+
+
+--------------------------------------------------------------------------------
+7. MONITORING AND MAINTENANCE
+--------------------------------------------------------------------------------
+
+7.1 HEALTH CHECKS
+-----------------
+
+Bot Health:
+systemctl is-active dodo-bot && echo "OK" || echo "FAILED"
+
+Web App Health:
+curl http://localhost:5001/health
+
+Full Status:
+sudo systemctl status dodo-bot dodo-webapp
+
+
+7.2 LOG MONITORING
+------------------
+
+Watch for Errors:
+tail -f logs/dodo_bot_errors.log
+
+Monitor Notifications:
+grep "notification" logs/dodo_bot.log
+
+Check API Calls:
+grep "Google Sheets" logs/dodo_bot.log
+grep "Gemini" logs/dodo_bot.log
+
+
+7.3 REGULAR MAINTENANCE TASKS
+------------------------------
+
+Daily:
+□ Check service status
+□ Review error logs
+□ Verify notifications sent
+
+Weekly:
+□ Review all logs
+□ Check disk space
+□ Verify backups created
+□ Update medical data
+
+Monthly:
+□ Update dependencies
+□ Review API usage
+□ Clean old backups
+□ Check for security updates
+
+
+7.4 METRICS TO TRACK
+--------------------
+
+Usage:
+- Number of registered users
+- Commands per day
+- Notifications sent
+- API calls
+
+Performance:
+- Response time
+- Memory usage
+- CPU usage
+- Disk usage
+
+Errors:
+- Error rate
+- Failed notifications
+- API errors
+
+
+--------------------------------------------------------------------------------
+8. API REFERENCE
+--------------------------------------------------------------------------------
+
+8.1 GOOGLE SHEETS API
+----------------------
+
+Authentication:
+- Service account (OAuth 2.0)
+- Scopes: spreadsheets.readonly or spreadsheets
+
+Rate Limits:
+- 100 requests per 100 seconds per user
+- 500 requests per 100 seconds per project
+
+Error Handling:
+- gspread.exceptions.APIError
+- Retry with exponential backoff
+
+
+8.2 TELEGRAM BOT API
+--------------------
+
+Methods Used:
+- sendMessage: Send text messages
+- sendPhoto: Send photos
+- editMessageText: Edit existing messages
+- answerCallbackQuery: Respond to button presses
+- getChatAdministrators: Check admin status
+
+Rate Limits:
+- 30 messages per second
+- 20 messages per minute to same user
+
+Error Handling:
+- telegram.error.TelegramError
+- telegram.error.BadRequest
+- telegram.error.TimedOut
+
+
+8.3 GEMINI API
+--------------
+
+Model: gemini-2.5-flash
+
+Methods:
+- generateContent: Analyze text and images
+
+Rate Limits:
+- Varies by plan
+- Monitor in Google Cloud Console
+
+Error Handling:
+- google.api_core.exceptions.GoogleAPIError
+- Handle quota exceeded
+- Fallback to text-only analysis
+
+
+--------------------------------------------------------------------------------
+9. GLOSSARY
+--------------------------------------------------------------------------------
+
+Terms:
+- Handler: Function that processes Telegram updates
+- ConversationHandler: Multi-step interaction flow
+- Callback Query: Button press event
+- Inline Keyboard: Buttons attached to messages
+- Reply Keyboard: Buttons at bottom of chat
+- Job Queue: Scheduler for timed tasks
+- Service: Business logic module
+- Systemd: Linux service manager
+- Gunicorn: Python WSGI HTTP server
+
+File Types:
+- .py: Python source code
+- .json: Data storage format
+- .service: Systemd service definition
+- .sh: Shell script
+- .env: Environment variables
+- .log: Log file
+
+
+--------------------------------------------------------------------------------
+10. SUPPORT AND RESOURCES
+--------------------------------------------------------------------------------
+
+Documentation:
+- python-telegram-bot: https://docs.python-telegram-bot.org/
+- gspread: https://docs.gspread.org/
+- Flask: https://flask.palletsprojects.com/
+- Google Gemini: https://ai.google.dev/docs
+
+Internal Documentation:
+- README.md: Project overview
+- DEPLOYMENT.md: Deployment guide
+- MAINTENANCE.md: Maintenance procedures
+- QUICKREF.md: Quick reference
+
+Logs Location:
+- Application: /home/ubuntu/dodo_bot/logs/
+- Systemd: sudo journalctl -u dodo-bot
+
+Contact:
+- For technical issues: Check logs first
+- For feature requests: Document requirements
+- For bugs: Provide logs and steps to reproduce
+
+
+================================================================================
+                            END OF MANUAL
+================================================================================
+
+Document Version: 1.0
+Last Updated: November 27, 2025
+Maintained by: Anubhav
+For updates to this manual, edit USER_MANUAL.txt in the project root.

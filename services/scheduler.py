@@ -66,23 +66,43 @@ async def send_preps_notification(context: ContextTypes.DEFAULT_TYPE):
         if not group_id:
             return
 
-        now = datetime.now()
+        import pytz
+        tz = pytz.timezone('Europe/Moscow')
+        now = datetime.now(tz)
         day_index = now.weekday() # 0=Mon, 6=Sun
         
         # Determine if it's morning or evening based on current time
-        # We expect this function to be called around 8:55 or 16:55
-        # Let's use a 30 min window to decide
+        # Scheduled times: 8:55 MSK (Morning) and 16:55 MSK (Evening)
+        
+        # Explicitly convert to MSK to be sure, but also check UTC hour as fallback
+        # 8:55 MSK is 5:55 UTC
+        # 16:55 MSK is 13:55 UTC
+        
+        now_utc = datetime.now(pytz.utc)
+        now_msk = now_utc.astimezone(tz)
+        
+        hour_msk = now_msk.hour
+        hour_utc = now_utc.hour
+        
+        logger.info(f"Preps Notification Triggered. Time: {now_msk} (MSK), Hour: {hour_msk}. UTC Hour: {hour_utc}")
         
         is_morning = False
-        if 8 <= now.hour < 12:
+        
+        # Morning check: 8 AM MSK or 5 AM UTC
+        if hour_msk == 8 or hour_utc == 5:
             is_morning = True
-        elif 16 <= now.hour < 20:
+            
+        # Evening check: 16 PM MSK or 13 PM UTC
+        elif hour_msk == 16 or hour_utc == 13:
             is_morning = False
+            
         else:
-            # Fallback or maybe we shouldn't run?
-            # If we run at 8:55, it's morning.
-            # If we run at 16:55, it's evening.
-            pass
+            # Fallback for manual runs or weird timing
+            if 4 <= hour_utc < 10: # Morning window
+                is_morning = True
+            else:
+                is_morning = False
+            logger.warning(f"Unexpected execution time. Defaulting to Morning={is_morning}")
             
         # Fetch preps
         preps_text = await get_preps(day_index, is_morning)
@@ -114,7 +134,9 @@ async def send_who_notification(context: ContextTypes.DEFAULT_TYPE):
         if not group_id:
             return
 
-        now = datetime.now()
+        import pytz
+        tz = pytz.timezone('Europe/Moscow')
+        now = datetime.now(tz)
         today_str = now.strftime("%d.%m")
         
         # Fetch who's on shift
