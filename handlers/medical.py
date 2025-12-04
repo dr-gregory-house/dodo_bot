@@ -5,7 +5,10 @@ from services.medical_service import (
     get_employee_status, 
     get_all_medical_issues, 
     load_medical_data,
-    is_manager
+    is_manager,
+    add_employee,
+    remove_employee,
+    get_all_roles
 )
 import logging
 import json
@@ -16,6 +19,12 @@ logger = logging.getLogger(__name__)
 
 # Conversation states
 SELECT_EMPLOYEE, SELECT_TYPE, INPUT_DATE = range(3)
+
+# Add employee states
+ADD_INPUT_NAME, ADD_SELECT_ROLE = range(10, 12)
+
+# Remove employee states
+REMOVE_SELECT_EMPLOYEE, REMOVE_CONFIRM = range(20, 22)
 
 ADMIN_SURNAMES = ["мишра", "анубхав", "ахмитенко", "смолкина", "лемехова"]
 
@@ -61,6 +70,8 @@ async def medical_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if is_allowed:
         keyboard.append([InlineKeyboardButton("✏️ Редактировать", callback_data="med_edit_start")])
+        keyboard.append([InlineKeyboardButton("➕ Добавить сотрудника", callback_data="med_add_start")])
+        keyboard.append([InlineKeyboardButton("➖ Удалить сотрудника", callback_data="med_remove_start")])
         
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -374,8 +385,265 @@ medical_conv_handler = ConversationHandler(
     ]
 )
 
+# --- Add Employee Flow ---
+
+async def start_add_employee(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
+    
+    is_allowed, _ = check_permissions(update.effective_user.id)
+    if not is_allowed:
+        await query.edit_message_text("⛔️ У вас нет прав на добавление сотрудников.")
+        return ConversationHandler.END
+    
+    keyboard = [[InlineKeyboardButton("❌ Отмена", callback_data="cancel_add")]]
+    await query.edit_message_text(
+        "➕ <b>Добавление сотрудника</b>\n\nВведите фамилию нового сотрудника:",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='HTML'
+    )
+    return ADD_INPUT_NAME
+
+async def add_employee_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    name = update.message.text.strip()
+    
+    if len(name) < 2:
+        keyboard = [[InlineKeyboardButton("❌ Отмена", callback_data="cancel_add")]]
+        await update.message.reply_text(
+            "❌ Фамилия слишком короткая. Введите корректную фамилию:",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+        return ADD_INPUT_NAME
+    
+    # Capitalize first letter
+    name = name.capitalize()
+    context.user_data['new_emp_name'] = name
+    
+    roles = get_all_roles()
+    keyboard = []
+    row = []
+    for role_key, role_name in roles.items():
+        row.append(InlineKeyboardButton(role_name, callback_data=f"add_role_{role_key}"))
+        if len(row) == 2:
+            keyboard.append(row)
+            row = []
+    if row:
+        keyboard.append(row)
+    keyboard.append([InlineKeyboardButton("❌ Отмена", callback_data="cancel_add")])
+    
+    await update.message.reply_text(
+        f"Сотрудник: <b>{name}</b>\n\nВыберите должность:",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='HTML'
+    )
+    return ADD_SELECT_ROLE
+
+async def add_employee_role(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
+    
+    data = query.data
+    if data == "cancel_add":
+        await query.edit_message_text("❌ Добавление отменено.")
+        await medical_menu(update, context)
+        return ConversationHandler.END
+    
+    if not data.startswith("add_role_"):
+        return ADD_SELECT_ROLE
+    
+    role = data[9:]  # Remove "add_role_" prefix
+    name = context.user_data.get('new_emp_name')
+    
+    success, message = add_employee(name, role)
+    
+    roles = get_all_roles()
+    role_name = roles.get(role, role)
+    
+    if success:
+        await query.edit_message_text(
+            f"✅ Сотрудник <b>{name}</b> ({role_name}) успешно добавлен!\n\n"
+            f"⚠️ Статус: <i>Нет документов</i>\n"
+            f"Отредактируйте даты мед. комиссии и сан. минимума.",
+            parse_mode='HTML'
+        )
+    else:
+        await query.edit_message_text(f"❌ {message}", parse_mode='HTML')
+    
+    context.user_data.clear()
+    
+    # Show menu
+    import asyncio
+    await asyncio.sleep(0.5)
+    await query.message.reply_text("Возвращаюсь в меню...")
+    from telegram import Update as FreshUpdate
+    fresh_update = FreshUpdate(update.update_id, message=query.message)
+    await medical_menu(fresh_update, context)
+    return ConversationHandler.END
+
+async def cancel_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
+    
+    await query.edit_message_text("❌ Добавление отменено.")
+    context.user_data.clear()
+    await medical_menu(update, context)
+    return ConversationHandler.END
+
+add_employee_conv_handler = ConversationHandler(
+    entry_points=[CallbackQueryHandler(start_add_employee, pattern="^med_add_start$")],
+    states={
+        ADD_INPUT_NAME: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, add_employee_name),
+            CallbackQueryHandler(cancel_add, pattern="^cancel_add$")
+        ],
+        ADD_SELECT_ROLE: [CallbackQueryHandler(add_employee_role)]
+    },
+    fallbacks=[
+        CallbackQueryHandler(cancel_add, pattern="^cancel_add$"),
+        CommandHandler("cancel", lambda u, c: cancel_add(u, c))
+    ]
+)
+
+# --- Remove Employee Flow ---
+
+async def start_remove_employee(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
+    
+    is_allowed, _ = check_permissions(update.effective_user.id)
+    if not is_allowed:
+        await query.edit_message_text("⛔️ У вас нет прав на удаление сотрудников.")
+        return ConversationHandler.END
+    
+    data = load_medical_data()
+    employees = data.get('employees', [])
+    employees.sort(key=lambda x: x['name'])
+    
+    keyboard = []
+    row = []
+    for emp in employees:
+        row.append(InlineKeyboardButton(emp['name'], callback_data=f"remove_emp_{emp['name']}"))
+        if len(row) == 2:
+            keyboard.append(row)
+            row = []
+    if row:
+        keyboard.append(row)
+    keyboard.append([InlineKeyboardButton("🔙 Отмена", callback_data="cancel_remove")])
+    
+    await query.edit_message_text(
+        "➖ <b>Удаление сотрудника</b>\n\nВыберите сотрудника для удаления:",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='HTML'
+    )
+    return REMOVE_SELECT_EMPLOYEE
+
+async def select_employee_to_remove(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
+    
+    data = query.data
+    if data == "cancel_remove":
+        await query.edit_message_text("❌ Удаление отменено.")
+        await medical_menu(update, context)
+        return ConversationHandler.END
+    
+    if not data.startswith("remove_emp_"):
+        return REMOVE_SELECT_EMPLOYEE
+    
+    employee_name = data[11:]  # Remove "remove_emp_" prefix
+    context.user_data['remove_emp_name'] = employee_name
+    
+    keyboard = [
+        [InlineKeyboardButton("✅ Да, удалить", callback_data="confirm_remove")],
+        [InlineKeyboardButton("❌ Отмена", callback_data="cancel_remove")]
+    ]
+    
+    await query.edit_message_text(
+        f"⚠️ Вы уверены, что хотите удалить сотрудника <b>{employee_name}</b>?",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='HTML'
+    )
+    return REMOVE_CONFIRM
+
+async def confirm_remove_employee(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
+    
+    data = query.data
+    if data == "cancel_remove":
+        await query.edit_message_text("❌ Удаление отменено.")
+        context.user_data.clear()
+        await medical_menu(update, context)
+        return ConversationHandler.END
+    
+    if data == "confirm_remove":
+        name = context.user_data.get('remove_emp_name')
+        success, message = remove_employee(name)
+        
+        if success:
+            await query.edit_message_text(f"✅ Сотрудник <b>{name}</b> успешно удалён!", parse_mode='HTML')
+        else:
+            await query.edit_message_text(f"❌ {message}", parse_mode='HTML')
+        
+        context.user_data.clear()
+        
+        import asyncio
+        await asyncio.sleep(0.5)
+        await query.message.reply_text("Возвращаюсь в меню...")
+        from telegram import Update as FreshUpdate
+        fresh_update = FreshUpdate(update.update_id, message=query.message)
+        await medical_menu(fresh_update, context)
+        return ConversationHandler.END
+    
+    return REMOVE_CONFIRM
+
+async def cancel_remove(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    try:
+        await query.answer()
+    except Exception as e:
+        logger.warning(f"Failed to answer callback query: {e}")
+    
+    await query.edit_message_text("❌ Удаление отменено.")
+    context.user_data.clear()
+    await medical_menu(update, context)
+    return ConversationHandler.END
+
+remove_employee_conv_handler = ConversationHandler(
+    entry_points=[CallbackQueryHandler(start_remove_employee, pattern="^med_remove_start$")],
+    states={
+        REMOVE_SELECT_EMPLOYEE: [CallbackQueryHandler(select_employee_to_remove)],
+        REMOVE_CONFIRM: [CallbackQueryHandler(confirm_remove_employee)]
+    },
+    fallbacks=[
+        CallbackQueryHandler(cancel_remove, pattern="^cancel_remove$"),
+        CommandHandler("cancel", lambda u, c: cancel_remove(u, c))
+    ]
+)
+
 medical_handlers = [
     medical_menu_handler,
     medical_conv_handler,
+    add_employee_conv_handler,
+    remove_employee_conv_handler,
     CallbackQueryHandler(medical_button_handler, pattern="^med_")
 ]
+

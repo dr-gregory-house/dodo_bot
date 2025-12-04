@@ -66,8 +66,8 @@ async def send_preps_notification(context: ContextTypes.DEFAULT_TYPE):
         if not group_id:
             return
 
-        import pytz
-        tz = pytz.timezone('Europe/Moscow')
+        from zoneinfo import ZoneInfo
+        tz = ZoneInfo('Europe/Moscow')
         now = datetime.now(tz)
         day_index = now.weekday() # 0=Mon, 6=Sun
         
@@ -78,7 +78,8 @@ async def send_preps_notification(context: ContextTypes.DEFAULT_TYPE):
         # 8:55 MSK is 5:55 UTC
         # 16:55 MSK is 13:55 UTC
         
-        now_utc = datetime.now(pytz.utc)
+        from datetime import timezone
+        now_utc = datetime.now(timezone.utc)
         now_msk = now_utc.astimezone(tz)
         
         hour_msk = now_msk.hour
@@ -134,8 +135,8 @@ async def send_who_notification(context: ContextTypes.DEFAULT_TYPE):
         if not group_id:
             return
 
-        import pytz
-        tz = pytz.timezone('Europe/Moscow')
+        from zoneinfo import ZoneInfo
+        tz = ZoneInfo('Europe/Moscow')
         now = datetime.now(tz)
         today_str = now.strftime("%d.%m")
         
@@ -161,8 +162,8 @@ async def check_shifts_and_notify(context: ContextTypes.DEFAULT_TYPE):
     Check shifts for today and tomorrow and notify users 1 hour before start.
     """
     try:
-        import pytz
-        tz = pytz.timezone('Europe/Moscow')
+        from zoneinfo import ZoneInfo
+        tz = ZoneInfo('Europe/Moscow')
         now = datetime.now(tz)
         
         # Check today and tomorrow to handle midnight shifts
@@ -303,8 +304,8 @@ async def send_feedback_notification(context: ContextTypes.DEFAULT_TYPE):
                 return
             
             # Create simple formatted message with raw data
-            import pytz
-            tz = pytz.timezone('Europe/Moscow')
+            from zoneinfo import ZoneInfo
+            tz = ZoneInfo('Europe/Moscow')
             today = datetime.now(tz).strftime("%d.%m.%Y")
             
             message = f"📋 **Обратная связь за {today}**\n\n"
@@ -357,3 +358,24 @@ async def reset_daily_data_job(context: ContextTypes.DEFAULT_TYPE):
         logger.info("Daily data reset completed")
     except Exception as e:
         logger.error(f"Error in reset_daily_data_job: {e}")
+
+async def send_debug_notification(context: ContextTypes.DEFAULT_TYPE):
+    """
+    Send debug notification to the group.
+    """
+    try:
+        # Load group ID
+        group_data = load_json(GROUP_FILE)
+        group_id = group_data.get('group_id')
+        
+        if not group_id:
+            return
+
+        await context.bot.send_message(
+            chat_id=group_id,
+            text="🐛 Debugging: Test message at 22:45"
+        )
+        logger.info(f"Sent debug notification to group {group_id}")
+        
+    except Exception as e:
+        logger.error(f"Error sending debug notification: {e}")

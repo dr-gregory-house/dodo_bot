@@ -192,3 +192,62 @@ def is_manager(surname):
         if surname.lower() in emp['name'].lower():
             return emp.get('role') == 'manager'
     return False
+
+
+def add_employee(name, role='trainee'):
+    """
+    Add a new employee to the medical data.
+    Returns True if successful, False if employee already exists.
+    """
+    data = load_medical_data()
+    employees = data.get('employees', [])
+    
+    # Check if employee already exists
+    for emp in employees:
+        if emp['name'].lower() == name.lower():
+            return False, "Сотрудник с таким именем уже существует"
+    
+    new_employee = {
+        'name': name,
+        'role': role,
+        'status': 'missing_docs'
+    }
+    employees.append(new_employee)
+    data['employees'] = employees
+    
+    if save_medical_data(data):
+        return True, "Сотрудник успешно добавлен"
+    return False, "Ошибка при сохранении данных"
+
+
+def remove_employee(name):
+    """
+    Remove an employee from the medical data.
+    Returns True if successful, False if employee not found.
+    """
+    data = load_medical_data()
+    employees = data.get('employees', [])
+    
+    for i, emp in enumerate(employees):
+        if emp['name'].lower() == name.lower():
+            employees.pop(i)
+            data['employees'] = employees
+            if save_medical_data(data):
+                return True, "Сотрудник успешно удалён"
+            return False, "Ошибка при сохранении данных"
+    
+    return False, "Сотрудник не найден"
+
+
+def get_all_roles():
+    """Return list of available roles with translations."""
+    return {
+        'manager': 'Менеджер',
+        'mentor': 'Наставник',
+        'instructor': 'Инструктор',
+        'universal': 'Универсал',
+        'pizzamaker': 'Пиццамейкер',
+        'cashier': 'Кассир',
+        'courier': 'Курьер',
+        'trainee': 'Стажёр'
+    }

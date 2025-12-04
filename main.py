@@ -142,27 +142,30 @@ if __name__ == '__main__':
     
     # Add scheduler job
     if application.job_queue:
-        from services.scheduler import check_shifts_and_notify, send_preps_notification, send_who_notification, send_feedback_notification, reset_daily_data_job
+        from services.scheduler import check_shifts_and_notify, send_preps_notification, send_who_notification, send_feedback_notification, reset_daily_data_job, send_debug_notification
         from datetime import time
-        import pytz
+        from zoneinfo import ZoneInfo
         
         # Run every 5 minutes (300 seconds)
         application.job_queue.run_repeating(check_shifts_and_notify, interval=300, first=10)
         
         # Schedule preps notifications (Moscow time)
         # 8:55 and 16:55
-        tz = pytz.timezone('Europe/Moscow')
-        application.job_queue.run_daily(send_preps_notification, time(8, 55, tzinfo=tz))
-        application.job_queue.run_daily(send_preps_notification, time(16, 55, tzinfo=tz))
+        tz = ZoneInfo('Europe/Moscow')
+        application.job_queue.run_daily(send_preps_notification, time(8, 55, tzinfo=tz), job_kwargs={'misfire_grace_time': 600})
+        application.job_queue.run_daily(send_preps_notification, time(16, 55, tzinfo=tz), job_kwargs={'misfire_grace_time': 600})
         
         # Schedule who's working notification at 8:00
-        application.job_queue.run_daily(send_who_notification, time(8, 0, tzinfo=tz))
+        application.job_queue.run_daily(send_who_notification, time(8, 0, tzinfo=tz), job_kwargs={'misfire_grace_time': 600})
 
         # Schedule feedback notification at 23:05 (11:05 PM)
-        application.job_queue.run_daily(send_feedback_notification, time(23, 5, tzinfo=tz))
+        application.job_queue.run_daily(send_feedback_notification, time(23, 5, tzinfo=tz), job_kwargs={'misfire_grace_time': 600})
         
         # Schedule daily data cleanup at midnight
-        application.job_queue.run_daily(reset_daily_data_job, time(0, 0, tzinfo=tz))
+        application.job_queue.run_daily(reset_daily_data_job, time(0, 0, tzinfo=tz), job_kwargs={'misfire_grace_time': 600})
+        
+        # DEBUG JOB - Rescheduled to 22:55
+        application.job_queue.run_daily(send_debug_notification, time(22, 50, tzinfo=tz), job_kwargs={'misfire_grace_time': 600})
         
         logger.info("Scheduler started - all jobs registered")
     else:
