@@ -165,7 +165,7 @@ if __name__ == '__main__':
         application.job_queue.run_daily(reset_daily_data_job, time(0, 0, tzinfo=tz), job_kwargs={'misfire_grace_time': 600})
         
         # DEBUG JOB - Rescheduled to 22:55
-        application.job_queue.run_daily(send_debug_notification, time(22, 50, tzinfo=tz), job_kwargs={'misfire_grace_time': 600})
+        #application.job_queue.run_daily(send_debug_notification, time(22, 50, tzinfo=tz), job_kwargs={'misfire_grace_time': 600})
         
         logger.info("Scheduler started - all jobs registered")
     else:
