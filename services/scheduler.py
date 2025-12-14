@@ -282,13 +282,23 @@ async def send_feedback_notification(context: ContextTypes.DEFAULT_TYPE):
         message = None
         
         # Try to read existing feedback.text file (from AI or manual)
+        # Try to read existing feedback.text file (from AI or manual)
         if os.path.exists(feedback_file):
             try:
-                with open(feedback_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    if content.strip():  # Only use if not empty
-                        message = content
-                        logger.info("Using existing feedback.text file")
+                # Check file modification time
+                mtime = os.path.getmtime(feedback_file)
+                file_time = datetime.fromtimestamp(mtime)
+                
+                # Check if file is older than 3 hours
+                if (datetime.now() - file_time).total_seconds() > 3 * 3600:
+                    message = "На сегодня ничего нет"
+                    logger.info(f"Feedback file is stale (older than 3 hours). Sending '{message}'.")
+                else:
+                    with open(feedback_file, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        if content.strip():  # Only use if not empty
+                            message = content
+                            logger.info("Using existing feedback.text file")
             except Exception as e:
                 logger.error(f"Error reading feedback file: {e}")
         
