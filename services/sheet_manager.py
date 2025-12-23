@@ -19,8 +19,13 @@ class SheetManager:
         Get list of sheets with their GIDs and names.
         Returns list of dicts: {'name': str, 'gid': str}
         """
+        now = datetime.now()
         if self._sheets_cache and not force_refresh:
-            return self._sheets_cache
+            # Refresh cache if older than 1 hour
+            if self._last_fetch and (now - self._last_fetch).total_seconds() < 3600:
+                return self._sheets_cache
+        
+        self._last_fetch = now
             
         try:
             logger.info("Fetching spreadsheet metadata...")
