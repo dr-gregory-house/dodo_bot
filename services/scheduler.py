@@ -318,8 +318,8 @@ async def send_feedback_notification(context: ContextTypes.DEFAULT_TYPE):
             tz = ZoneInfo('Europe/Moscow')
             today = datetime.now(tz).strftime("%d.%m.%Y")
             
-            message = f"📋 **Обратная связь за {today}**\n\n"
-            message += "_⚠️ Автоматический анализ временно недоступен. Ниже сырые данные:_\n\n"
+            message = f"📋 Обратная связь за {today}\n\n"
+            message += "⚠️ Автоматический анализ временно недоступен. Ниже сырые данные:\n\n"
             
             text_count = 0
             image_count = 0
@@ -349,8 +349,7 @@ async def send_feedback_notification(context: ContextTypes.DEFAULT_TYPE):
         
         await context.bot.send_message(
             chat_id=group_id,
-            text=message,
-            parse_mode='Markdown'
+            text=message
         )
         logger.info(f"Sent feedback notification to group {group_id}")
         
