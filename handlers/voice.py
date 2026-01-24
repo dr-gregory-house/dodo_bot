@@ -114,23 +114,62 @@ async def receive_audio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             await update.message.reply_text("❌ Пожалуйста, отправьте голосовое сообщение или аудиофайл.")
             return WAITING_FOR_AUDIO
         
+        await update.message.reply_text("⏳ Обрабатываю аудио...")
+        
         # Download the file
         telegram_file = await file.get_file()
         file_bytes = await telegram_file.download_as_bytearray()
         
-        # Send to group as voice message
-        from io import BytesIO
-        audio_buffer = BytesIO(bytes(file_bytes))
-        audio_buffer.name = "voice.ogg"  # Telegram needs a filename
+        # Save input to temp file
+        import tempfile
+        import subprocess
         
-        await context.bot.send_voice(
-            chat_id=int(group_id),
-            voice=audio_buffer,
-            caption="📢 Итоги дня от dodo_bot 🦤"
-        )
+        with tempfile.NamedTemporaryFile(suffix=".input", delete=False) as input_tmp:
+            input_tmp.write(file_bytes)
+            input_path = input_tmp.name
+            
+        output_path = input_path + ".ogg"
         
-        await update.message.reply_text("✅ Голосовое сообщение отправлено в группу!")
-        logger.info(f"Voice message sent to group {group_id} by user {update.effective_user.id}")
+        try:
+            # Convert to OGG Opus using ffmpeg
+            # -i input -c:a libopus -b:a 32k -vbr on -compression_level 10 output.ogg
+            cmd = [
+                'ffmpeg', '-y', '-i', input_path,
+                '-c:a', 'libopus',
+                '-b:a', '32k', 
+                '-vbr', 'on',
+                '-compression_level', '10',
+                '-map_metadata', '-1', # Remove metadata
+                output_path
+            ]
+            
+            process = subprocess.run(
+                cmd, 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE,
+                check=True
+            )
+            
+            # Send converted file to group
+            with open(output_path, 'rb') as audio_file:
+                await context.bot.send_voice(
+                    chat_id=int(group_id),
+                    voice=audio_file,
+                    caption="📢 Итоги дня от dodo_bot 🦤"
+                )
+            
+            await update.message.reply_text("✅ Голосовое сообщение успешно отправлено в группу!")
+            logger.info(f"Voice message sent to group {group_id} by user {update.effective_user.id}")
+            
+        except subprocess.CalledProcessError as e:
+            logger.error(f"FFmpeg conversion failed: {e.stderr.decode()}")
+            await update.message.reply_text("❌ Ошибка при конвертации аудио. Попробуйте другой формат.")
+        finally:
+            # Cleanup temp files
+            if os.path.exists(input_path):
+                os.remove(input_path)
+            if os.path.exists(output_path):
+                os.remove(output_path)
         
     except Exception as e:
         logger.error(f"Error sending voice to group: {e}")
