@@ -15,4 +15,4 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Неизвестная команда.")
 
-menu_message_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, menu_handler)
+menu_message_handler = MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, menu_handler)
