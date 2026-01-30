@@ -5,7 +5,9 @@ Only available for authorized user (anubhav/мишра).
 import json
 import os
 import logging
-from telegram import Update
+import tempfile
+import subprocess
+from telegram import Update, InputFile
 from telegram.ext import (
     ContextTypes,
     CommandHandler,
@@ -59,6 +61,23 @@ async def is_authorized(update: Update, context: ContextTypes.DEFAULT_TYPE) -> b
     return False
 
 
+def get_audio_duration(file_path: str) -> int:
+    """Get audio duration in seconds using ffprobe."""
+    try:
+        cmd = [
+            'ffprobe', '-v', 'error',
+            '-show_entries', 'format=duration',
+            '-of', 'default=noprint_wrappers=1:nokey=1',
+            file_path
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        duration = float(result.stdout.strip())
+        return int(duration)
+    except Exception as e:
+        logger.warning(f"Could not get duration: {e}")
+        return 0
+
+
 async def voice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle /voice command - start conversation."""
     # Only works in private chat
@@ -77,6 +96,9 @@ async def voice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         await update.message.reply_text("❌ Группа не настроена. Используйте /set_group в группе.")
         return ConversationHandler.END
     
+    # Set test mode to False by default
+    context.user_data['voice_test_mode'] = False
+    
     await update.message.reply_text(
         "🎤 Отправьте мне голосовое сообщение или аудиофайл.\n"
         "Я перешлю его в группу.\n\n"
@@ -85,11 +107,36 @@ async def voice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return WAITING_FOR_AUDIO
 
 
+async def voice_test_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Handle /voice_test command - test mode (sends back to user, not group)."""
+    # Only works in private chat
+    if update.effective_chat.type != 'private':
+        await update.message.reply_text("❌ Эту команду можно использовать только в личных сообщениях.")
+        return ConversationHandler.END
+    
+    # Check authorization
+    if not await is_authorized(update, context):
+        await update.message.reply_text("❌ У вас нет доступа к этой команде.")
+        return ConversationHandler.END
+    
+    # Set test mode to True
+    context.user_data['voice_test_mode'] = True
+    
+    await update.message.reply_text(
+        "🧪 РЕЖИМ ТЕСТИРОВАНИЯ\n\n"
+        "Отправьте аудиофайл - я конвертирую его и отправлю обратно вам.\n"
+        "Это позволит проверить, корректно ли отображается волна.\n\n"
+        "Отправьте /cancel для отмены."
+    )
+    return WAITING_FOR_AUDIO
+
+
 async def receive_audio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle received audio/voice file."""
+    test_mode = context.user_data.get('voice_test_mode', False)
     group_id = get_group_id()
     
-    if not group_id:
+    if not test_mode and not group_id:
         await update.message.reply_text("❌ Группа не настроена.")
         return ConversationHandler.END
     
@@ -121,25 +168,26 @@ async def receive_audio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         file_bytes = await telegram_file.download_as_bytearray()
         
         # Save input to temp file
-        import tempfile
-        import subprocess
-        
         with tempfile.NamedTemporaryFile(suffix=".input", delete=False) as input_tmp:
             input_tmp.write(file_bytes)
             input_path = input_tmp.name
             
-        output_path = input_path + ".ogg"
+        output_path = input_path + ".oga"  # .oga extension for Ogg Audio
         
         try:
-            # Convert to OGG Opus using ffmpeg
-            # -i input -c:a libopus -b:a 32k -vbr on -compression_level 10 output.ogg
+            # Convert to OGG Opus using ffmpeg - optimized for Telegram voice messages
+            # -map 0:a extracts ONLY audio (ignores album art/video that breaks Telegram)
             cmd = [
                 'ffmpeg', '-y', '-i', input_path,
+                '-map', '0:a',  # Extract only audio stream (fixes MP3s with embedded album art)
                 '-c:a', 'libopus',
-                '-b:a', '32k', 
+                '-b:a', '48k',  # Bitrate for voice
                 '-vbr', 'on',
                 '-compression_level', '10',
-                '-map_metadata', '-1', # Remove metadata
+                '-application', 'voip',  # Voice-optimized encoding
+                '-ac', '1',  # Mono
+                '-ar', '48000',  # 48kHz sample rate (required for Opus)
+                '-f', 'ogg',  # OGG container
                 output_path
             ]
             
@@ -150,16 +198,55 @@ async def receive_audio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
                 check=True
             )
             
-            # Send converted file to group
-            with open(output_path, 'rb') as audio_file:
+            # Get duration of the converted file
+            duration = get_audio_duration(output_path)
+            file_size = os.path.getsize(output_path)
+            
+            logger.info(f"Converted audio: duration={duration}s, size={file_size} bytes")
+            
+            if test_mode:
+                # Test mode: send back to user
+                # Send raw bytes directly (proven to work in standalone tests)
+                with open(output_path, 'rb') as audio_file:
+                    voice_bytes = audio_file.read()
+                
+                logger.info(f"SENDING: bytes_len={len(voice_bytes)}, duration_param={duration}")
+                
+                msg = await context.bot.send_voice(
+                    chat_id=update.effective_chat.id,
+                    voice=voice_bytes,
+                    duration=duration,
+                    caption=f"🧪 Тест: duration={duration}s, size={file_size}bytes"
+                )
+                
+                # Log what API returned
+                if msg.voice:
+                    logger.info(f"API RETURNED: voice.duration={msg.voice.duration}, voice.file_size={msg.voice.file_size}")
+                else:
+                    logger.warning("API RETURNED: NO VOICE OBJECT!")
+                
+                await update.message.reply_text(
+                    "✅ Тестовое сообщение отправлено!\n\n"
+                    "Проверьте:\n"
+                    "• Отображается ли волна?\n"
+                    "• Воспроизводится ли на телефоне?\n\n"
+                    "Если всё ок - используйте /voice для отправки в группу."
+                )
+                logger.info(f"Test voice sent to user {update.effective_user.id}")
+            else:
+                # Normal mode: send to group
+                # Send raw bytes directly (proven to work in standalone tests)
+                with open(output_path, 'rb') as audio_file:
+                    voice_bytes = audio_file.read()
+                
                 await context.bot.send_voice(
                     chat_id=int(group_id),
-                    voice=audio_file,
+                    voice=voice_bytes,
+                    duration=duration,
                     caption="📢 Итоги дня от dodo_bot 🦤"
                 )
-            
-            await update.message.reply_text("✅ Голосовое сообщение успешно отправлено в группу!")
-            logger.info(f"Voice message sent to group {group_id} by user {update.effective_user.id}")
+                await update.message.reply_text("✅ Голосовое сообщение успешно отправлено в группу!")
+                logger.info(f"Voice message sent to group {group_id} by user {update.effective_user.id}")
             
         except subprocess.CalledProcessError as e:
             logger.error(f"FFmpeg conversion failed: {e.stderr.decode()}")
@@ -186,7 +273,10 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 # Create the conversation handler
 voice_handler = ConversationHandler(
-    entry_points=[CommandHandler("voice", voice_command)],
+    entry_points=[
+        CommandHandler("voice", voice_command),
+        CommandHandler("voice_test", voice_test_command),
+    ],
     states={
         WAITING_FOR_AUDIO: [
             MessageHandler(filters.VOICE | filters.AUDIO | filters.Document.ALL, receive_audio),
