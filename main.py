@@ -101,6 +101,7 @@ if __name__ == '__main__':
     from handlers.message_handler import text_collection_handler, photo_collection_handler
     from handlers.worker_instructions import worker_instructions_message_handler, instructions_callback
     from handlers.voice import voice_handler
+    from handlers.announce import announce_handler
 
     # Restriction Handler (Group -1)
     # Restrict all commands in groups to Admins/Managers
@@ -121,6 +122,7 @@ if __name__ == '__main__':
     application.add_handler(upload_rp_handler)
     application.add_handler(schedule_callback_handler)
     application.add_handler(voice_handler)
+    application.add_handler(announce_handler)
     application.add_handler(menu_message_handler)
     
     # Command to set group for notifications
