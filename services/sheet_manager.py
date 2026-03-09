@@ -1,6 +1,6 @@
 import re
 import logging
-import urllib.request
+import httpx
 from datetime import datetime
 from typing import List, Dict, Optional
 
@@ -13,7 +13,29 @@ class SheetManager:
     def __init__(self):
         self._sheets_cache: List[Dict] = []
         self._last_fetch = None
+        self._csv_cache: Dict[str, dict] = {} # url -> {'content': str, 'timestamp': datetime}
     
+    async def get_csv_content(self, url: str, ttl_seconds: int = 300) -> str:
+        """
+        Fetch CSV content from URL, caching it in memory for ttl_seconds (default 5 min).
+        """
+        now = datetime.now()
+        
+        # Return from cache if valid
+        cached = self._csv_cache.get(url)
+        if cached and (now - cached['timestamp']).total_seconds() < ttl_seconds:
+            logger.debug(f"Returning cached CSV for {url}")
+            return cached['content']
+            
+        logger.info(f"Downloading CSV from {url}")
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            response = await client.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+            response.raise_for_status()
+            content = response.text
+            
+        self._csv_cache[url] = {'content': content, 'timestamp': now}
+        return content
+
     async def get_sheets(self, force_refresh: bool = False) -> List[Dict]:
         """
         Get list of sheets with their GIDs and names.
@@ -29,10 +51,11 @@ class SheetManager:
             
         try:
             logger.info("Fetching spreadsheet metadata...")
-            # Use urllib instead of httpx
-            req = urllib.request.Request(self.BASE_URL, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req) as response:
-                content = response.read().decode('utf-8')
+            # Use httpx instead of urllib
+            async with httpx.AsyncClient(follow_redirects=True) as client:
+                response = await client.get(self.BASE_URL, headers={'User-Agent': 'Mozilla/5.0'})
+                response.raise_for_status()
+                content = response.text
             
             sheets = []
             
@@ -40,44 +63,7 @@ class SheetManager:
             match = re.search(r'var bootstrapData = ({.*?});', content, re.DOTALL)
             if match:
                 data = match.group(1)
-                
-                # Find all sheet definitions
-                # Pattern: [index, 0, "gid", [... "Sheet Name" ...]]
-                # But simpler to just look for the name and GID pattern we found earlier
-                # The structure in bootstrapData is complex, but we saw:
-                # [..., "gid", [{"1":[[0,0,"Sheet Name"]...
-                
-                # Let's use the regex that worked in our discovery script
-                # We found that names like "кухня 24-30" appear in the data
-                
-                # Strategy: Find all sheet names and their associated GIDs
-                # We'll look for the pattern `[number, 0, "gid_string", ... [[0,0,"Sheet Name"]`
-                # This might be too brittle.
-                
-                # Alternative: Parse the bootstrap data more robustly?
-                # It's huge.
-                
-                # Let's go with the pattern we saw:
-                # `[number, 0, "GID", ... "Sheet Name"`
-                
-                # Let's try to find all `[number, 0, "GID",` blocks first
-                # Then look inside them for the name.
-                
-                # Actually, let's iterate over all matches of `[number, 0, "(\d+)",`
-                # And for each match, look ahead for `[[0,0,"([^"]+)"`
-                
-                # This is a bit risky if the order changes.
-                
-                # Let's use a simpler approach:
-                # Find all occurrences of `[number, 0, "(\d+)",` which seems to define a sheet.
-                # Then within that block (up to the next sheet def), find `[[0,0,"([^"]+)"`
-                
-                # Let's try to capture the whole block for a sheet.
-                # They seem to be top-level elements in a list.
-                
-                # The structure we saw in bootstrap.json:
-                # [21350203,"[7,0,\"1833845756\",[{\"1\":[[0,0,\"кухня 24-30\"],...
-                # It seems to be a list of updates/snapshots.
+		
                 
                 # Let's look for the pattern: `[\d+,0,"(\d+)",\[\{"1":\[\[0,0,"([^"]+)"`
                 # Note the escaped quotes in the JSON string.

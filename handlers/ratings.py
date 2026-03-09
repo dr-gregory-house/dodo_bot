@@ -129,6 +129,13 @@ async def handle_photo_choice(update: Update, context: ContextTypes.DEFAULT_TYPE
     
     elif data.startswith('finish_'):
         # Save with just 1 photo
+        if 'photos' not in context.user_data:
+            await query.edit_message_text(
+                "❌ **Ошибка: Данные устарели или загрузка уже завершена.**\nНачните заново с команды /rs или /rp.",
+                parse_mode='Markdown'
+            )
+            return ConversationHandler.END
+
         ratings_data = load_ratings()
         ratings_data[upload_type] = context.user_data['photos']
         save_ratings(ratings_data)

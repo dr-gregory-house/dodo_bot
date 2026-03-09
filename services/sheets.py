@@ -1,7 +1,6 @@
 import csv
 import io
 import logging
-import urllib.request
 from datetime import datetime
 from services.sheet_manager import sheet_manager
 
@@ -90,8 +89,6 @@ def detect_role_header(row_text: str) -> str | None:
 
 from services.sheet_manager import sheet_manager
 
-import urllib.request
-
 async def get_schedule(surname: str):
     if not surname:
         return []
@@ -115,9 +112,7 @@ async def get_schedule(surname: str):
             url = f"https://docs.google.com/spreadsheets/d/1hbvUroW0SxAbTbsn0nn-9wJyYKz-zLDJQ_PS7b83SzA/export?format=csv&gid={gid}"
             
             try:
-                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req) as response:
-                    content = response.read().decode('utf-8')
+                content = await sheet_manager.get_csv_content(url)
                 
                 reader = list(csv.reader(io.StringIO(content)))
                 
@@ -286,9 +281,7 @@ async def get_shifts_for_date(target_date: str):
             url = f"https://docs.google.com/spreadsheets/d/1hbvUroW0SxAbTbsn0nn-9wJyYKz-zLDJQ_PS7b83SzA/export?format=csv&gid={gid}"
             
             try:
-                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req) as response:
-                    content = response.read().decode('utf-8')
+                content = await sheet_manager.get_csv_content(url)
                 
                 reader = list(csv.reader(io.StringIO(content)))
                 
@@ -445,10 +438,7 @@ async def get_preps(day_index: int, is_morning: bool):
     """
     try:
         # 1. Fetch Vegetables from Sheet (Existing Logic)
-        import urllib.request
-        req = urllib.request.Request(PREPS_URL, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req) as response:
-            content = response.read().decode('utf-8')
+        content = await sheet_manager.get_csv_content(PREPS_URL)
             
         reader = list(csv.reader(io.StringIO(content)))
         
@@ -619,9 +609,7 @@ async def get_all_employees():
             url = f"https://docs.google.com/spreadsheets/d/1hbvUroW0SxAbTbsn0nn-9wJyYKz-zLDJQ_PS7b83SzA/export?format=csv&gid={gid}"
             
             try:
-                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req) as response:
-                    content = response.read().decode('utf-8')
+                content = await sheet_manager.get_csv_content(url)
                 
                 reader = list(csv.reader(io.StringIO(content)))
                 
