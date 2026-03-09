@@ -14,7 +14,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
-
+*.pyc
 # Google Service Account
 service_account.json
 *.json
